@@ -1,0 +1,39 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.grid {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 500px;
+  height: 500px;
+  border: 1px solid #ccc;
+}
+
+.row {
+  width: 100%;
+  height: calc(100% / 12);
+}
+
+.cell {
+  display: inline-block;
+  width: calc(100% / 12);
+  height: 100%;
+  border: 1px solid #ccc;
+  
+  transition: background-color .2s;
+}
+.cell.selected {
+  background-color: #999;
+}
+.cell.hovered {
+  background-color: #ddd;
+}
+.cell.hovered.selected {
+  background-color: #f00;
+}
