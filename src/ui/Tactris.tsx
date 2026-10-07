@@ -47,6 +47,13 @@ export default function Tactris() {
     setBest(game.score);
     saveBest(game.score);
   }, [game.score, best]);
+  // The best score when this game started, so Game over can tell whether it was beaten.
+  const [bestBefore, setBestBefore] = useState(best);
+
+  const restart = () => {
+    setGame(startGame());
+    setBestBefore(best);
+  };
 
   const rotate = (direction: "cw" | "ccw") => setGame((g) => apply(g, { type: "rotate", direction }));
 
@@ -99,34 +106,45 @@ export default function Tactris() {
     return classes.join(" ");
   };
   const lines = shown?.completes.length ?? 0;
-  const status = shown?.blocked ? "BLOCKED" : lines ? `${lines} ${lines === 1 ? "LINE" : "LINES"} CLEAR` : "";
+  const status = game.gameOver
+    ? "NO MOVES LEFT"
+    : shown?.blocked
+      ? "BLOCKED"
+      : lines
+        ? `${lines} ${lines === 1 ? "LINE" : "LINES"} CLEAR`
+        : "";
 
   return (
     <div className="tactris flex min-h-screen flex-col font-pixel-body text-ink">
       <header className="flex flex-wrap items-center justify-between gap-4 border-b-4 border-ink px-11 py-[18px]">
         <span className="wordmark">TACTRIS</span>
-        <button className="btn" onClick={() => setGame(startGame())}>
+        <button className="btn" onClick={restart}>
           NEW GAME
         </button>
       </header>
 
       <main className="flex flex-1 flex-wrap items-center justify-center gap-11 px-6 py-7">
         <section aria-label="Board" className="board-column flex flex-col gap-3">
-          <div
-            ref={boardRef}
-            className="board"
-            style={{ gridTemplateColumns: `repeat(${SETTINGS.width}, minmax(0, 1fr))` }}
-            onMouseLeave={() => setPointer(null)}
-          >
-            {game.cells.flatMap((row, r) =>
-              row.map((_, c) => (
-                <div
-                  key={`${r},${c}`}
-                  className={cellClass(r, c)}
-                  onMouseEnter={() => setPointer([r, c])}
-                  onClick={() => place(r, c)}
-                />
-              )),
+          <div className="relative">
+            <div
+              ref={boardRef}
+              className="board"
+              style={{ gridTemplateColumns: `repeat(${SETTINGS.width}, minmax(0, 1fr))` }}
+              onMouseLeave={() => setPointer(null)}
+            >
+              {game.cells.flatMap((row, r) =>
+                row.map((_, c) => (
+                  <div
+                    key={`${r},${c}`}
+                    className={cellClass(r, c)}
+                    onMouseEnter={() => setPointer([r, c])}
+                    onClick={() => place(r, c)}
+                  />
+                )),
+              )}
+            </div>
+            {game.gameOver && (
+              <GameOver score={game.score} best={best} newBest={game.score > bestBefore} onPlayAgain={restart} />
             )}
           </div>
           <div className="flex h-[22px] items-center font-pixel text-[15px] leading-none">{status && `> ${status}`}</div>
@@ -145,8 +163,8 @@ export default function Tactris() {
             </Box>
           </div>
           <div className="flex gap-4">
-            <Box label="NOW" half>
-              <MiniPiece piece={game.current} />
+            <Box label="NOW" half stuck={game.gameOver}>
+              <MiniPiece piece={game.current} stuck={game.gameOver} />
             </Box>
             <Box label="NEXT" half>
               <MiniPiece piece={game.next} />
@@ -173,24 +191,71 @@ export default function Tactris() {
 }
 
 /** A Piece in mini-cells, centred in an area tall and wide enough for any Orientation (4 × 18px + gaps). */
-function MiniPiece({ piece }: { piece: Piece | null }) {
+function MiniPiece({ piece, stuck }: { piece: Piece | null; stuck?: boolean }) {
+  const filled = stuck ? "size-[18px] cell-filled cell-ghost-blocked" : "size-[18px] cell-filled";
   const rows = piece ? pieceCells(piece) : [];
   return (
     <div className="flex h-[78px] items-center justify-center">
       <div className="grid gap-0.5" style={{ gridTemplateColumns: `repeat(${rows[0]?.length ?? 0}, 18px)` }}>
         {rows.flatMap((line, r) =>
-          [...line].map((mark, c) => <div key={`${r},${c}`} className={mark === "#" ? "size-[18px] cell-filled" : "size-[18px]"} />),
+          [...line].map((mark, c) => <div key={`${r},${c}`} className={mark === "#" ? filled : "size-[18px]"} />),
         )}
       </div>
     </div>
   );
 }
 
-function Box({ label, half, children }: { label: string; half?: boolean; children: ReactNode }) {
+function Box({ label, half, stuck, children }: { label: string; half?: boolean; stuck?: boolean; children: ReactNode }) {
   return (
-    <div className={half ? "box flex-1 px-3" : "box"}>
+    <div className={["box", half && "flex-1 px-3", stuck && "border-error"].filter(Boolean).join(" ")}>
       <span className="box-label">{label}</span>
       {children}
     </div>
+  );
+}
+
+/** Over the dimmed Board: the final score and best, NEW BEST! when it was beaten, and PLAY AGAIN. */
+function GameOver(props: { score: number; best: number; newBest: boolean; onPlayAgain: () => void }) {
+  return (
+    <div className="game-over-dim absolute inset-1.5 flex items-center justify-center p-6">
+      <div role="dialog" aria-label="Game over" className="game-over-panel flex w-[min(320px,100%)] flex-col gap-[18px]">
+        <div className="flex flex-col items-center gap-2.5">
+          <span className="wordmark text-[30px]">GAME OVER</span>
+          {props.newBest && (
+            <div className="flex items-center gap-2.5">
+              <Sparkle />
+              <span className="font-pixel text-[17px] font-bold tracking-[0.06em]">NEW BEST!</span>
+              <Sparkle />
+            </div>
+          )}
+        </div>
+        <div className="flex flex-col gap-2.5 border-y-[3px] border-dashed border-dark py-3.5">
+          <div className="flex items-baseline justify-between gap-3">
+            <span className="box-label">SCORE</span>
+            <span className="text-[44px] leading-none font-bold">{props.score}</span>
+          </div>
+          <div className="flex items-baseline justify-between gap-3">
+            <span className="box-label">BEST</span>
+            <span className="text-[26px] leading-none font-bold">{props.best}</span>
+          </div>
+        </div>
+        <button className="btn h-[52px] w-full text-[18px]" onClick={props.onPlayAgain} autoFocus>
+          PLAY AGAIN
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** The 7×7 pixel sparkle beside NEW BEST!, from the design. */
+function Sparkle() {
+  return (
+    <svg width="21" height="21" viewBox="0 0 7 7" shapeRendering="crispEdges" aria-hidden="true">
+      <rect x="3" y="0" width="1" height="7" fill="var(--ink)" />
+      <rect x="0" y="3" width="7" height="1" fill="var(--ink)" />
+      {[[1, 1], [5, 1], [1, 5], [5, 5]].map(([x, y]) => (
+        <rect key={`${x},${y}`} x={x} y={y} width="1" height="1" fill="var(--dark)" />
+      ))}
+    </svg>
   );
 }

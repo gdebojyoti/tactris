@@ -52,6 +52,10 @@
   .btn:hover {
     background: var(--dark);
   }
+  .btn:focus-visible {
+    outline: 3px solid var(--ink);
+    outline-offset: 3px;
+  }
 
   .board-column {
     width: min(560px, 100%, calc(100vh - 200px));
@@ -120,6 +124,24 @@
       inset 0 0 0 3px var(--backlight),
       inset 0 0 0 6px var(--ink),
       inset 0 0 0 9px var(--backlight);
+  }
+
+  /* Game over: the Board dimmed by backlight scanlines, under a centred panel. */
+  .game-over-dim {
+    background: repeating-linear-gradient(
+      0deg,
+      color-mix(in srgb, var(--backlight) 78%, transparent) 0 2px,
+      color-mix(in srgb, var(--backlight) 62%, transparent) 2px 4px
+    );
+  }
+  .game-over-panel {
+    padding: 26px 26px 24px;
+    background: var(--backlight);
+    border: 6px solid var(--ink);
+    box-shadow:
+      inset 0 0 0 4px var(--backlight),
+      inset 0 0 0 7px var(--dark),
+      10px 10px 0 var(--ink);
   }
 
   .box {
