@@ -13,7 +13,7 @@ type Props = {
 export default function Box({ label, half, blocked, children }: Props) {
   return (
     <div
-      className={`flex flex-col gap-2 border-4 bg-backlight py-3.5 shadow-box ${half ? "flex-1 px-3" : "px-[18px]"} ${blocked ? "border-error" : "border-ink"}`}
+      className={`flex flex-col gap-2 border-4 bg-backlight py-3.5 shadow-box ${half ? "flex-1 px-3" : "px-4.5"} ${blocked ? "border-error" : "border-ink"}`}
     >
       <span className="font-pixel text-[13px]">{label}</span>
       {children}

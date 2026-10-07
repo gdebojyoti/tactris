@@ -89,20 +89,20 @@ export default function Tactris() {
 
   return (
     <div className="tactris flex min-h-screen flex-col font-pixel-body text-ink">
-      <header className="flex flex-wrap items-center justify-between gap-4 border-b-4 border-ink px-11 py-[18px]">
+      <header className="flex flex-wrap items-center justify-between gap-4 border-b-4 border-ink px-11 py-4.5">
         <span className="font-pixel text-[32px] font-bold tracking-[0.04em] text-shadow-hard">TACTRIS</span>
         <Button onClick={restart}>NEW GAME</Button>
       </header>
 
       <main className="flex flex-1 flex-wrap items-center justify-center gap-11 px-6 py-7">
-        <section aria-label="Board" className="flex w-[min(560px,100%,calc(100vh_-_200px))] flex-col gap-3">
+        <section aria-label="Board" className="flex w-[min(560px,100%,calc(100vh-200px))] flex-col gap-3">
           <div className="relative">
             <Board game={game} ghost={shown} onPointer={setPointer} onPlace={place} onRotate={rotate} />
             {game.gameOver && (
               <GameOver score={game.score} best={best} newBest={game.score > bestBefore} onPlayAgain={restart} />
             )}
           </div>
-          <div className="flex h-[22px] items-center font-pixel text-[15px] leading-none">{status && `> ${status}`}</div>
+          <div className="flex h-5.5 items-center font-pixel text-[15px] leading-none">{status && `> ${status}`}</div>
         </section>
 
         <Sidebar game={game} best={best} />

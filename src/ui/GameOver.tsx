@@ -10,7 +10,7 @@ export default function GameOver({ score, best, newBest, onPlayAgain }: Props) {
       <div
         role="dialog"
         aria-label="Game over"
-        className="flex w-[min(320px,100%)] flex-col gap-[18px] border-[6px] border-ink bg-backlight px-[26px] pt-[26px] pb-6 shadow-panel"
+        className="flex w-[min(320px,100%)] flex-col gap-4.5 border-[6px] border-ink bg-backlight px-6.5 pt-6.5 pb-6 shadow-panel"
       >
         <div className="flex flex-col items-center gap-2.5">
           <span className="font-pixel text-[30px] font-bold tracking-[0.04em] text-shadow-hard">GAME OVER</span>

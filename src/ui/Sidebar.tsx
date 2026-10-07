@@ -11,7 +11,7 @@ const CONTROLS = [
 /** Score, lines and best, the current and Next pieces, and the controls when rotation is on. */
 export default function Sidebar({ game, best }: { game: Game; best: number }) {
   return (
-    <aside aria-label="Game info" className="flex w-[250px] flex-col gap-4">
+    <aside aria-label="Game info" className="flex w-62.5 flex-col gap-4">
       <Box label="SCORE">
         <span className="text-right text-[44px] leading-none font-bold">{game.score}</span>
       </Box>
