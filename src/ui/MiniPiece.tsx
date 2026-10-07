@@ -1,8 +1,8 @@
 import { pieceCells, type Piece } from "../engine/engine";
 
 /** A Piece in mini-cells, centred in an area tall and wide enough for any Orientation (4 × 18px + gaps). */
-export default function MiniPiece({ piece, stuck }: { piece: Piece | null; stuck?: boolean }) {
-  const filled = stuck ? "size-[18px] cell-filled cell-ghost-blocked" : "size-[18px] cell-filled";
+export default function MiniPiece({ piece, blocked }: { piece: Piece | null; blocked?: boolean }) {
+  const filled = blocked ? "size-[18px] cell-filled cell-ghost-blocked" : "size-[18px] cell-filled";
   const rows = piece ? pieceCells(piece) : [];
   return (
     <div className="flex h-[78px] items-center justify-center">

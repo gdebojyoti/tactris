@@ -24,8 +24,8 @@ export default function Sidebar({ game, best }: { game: Game; best: number }) {
         </Box>
       </div>
       <div className="flex gap-4">
-        <Box label="NOW" half stuck={game.gameOver}>
-          <MiniPiece piece={game.current} stuck={game.gameOver} />
+        <Box label="NOW" half blocked={game.gameOver}>
+          <MiniPiece piece={game.current} blocked={game.gameOver} />
         </Box>
         <Box label="NEXT" half>
           <MiniPiece piece={game.next} />
