@@ -95,14 +95,15 @@ export default function Tactris() {
       </header>
 
       <main className="flex flex-1 flex-wrap items-center justify-center gap-11 px-6 py-7">
-        <section aria-label="Board" className="flex w-[min(560px,100%,calc(100vh-200px))] flex-col gap-3">
+        {/* The status line hangs below the Board, out of the flow, so the Sidebar centres on the Board alone. */}
+        <section aria-label="Board" className="relative w-[min(560px,100%,calc(100vh-200px))]">
           <div className="relative">
             <Board game={game} ghost={shown} onPointer={setPointer} onPlace={place} onRotate={rotate} />
             {game.gameOver && (
               <GameOver score={game.score} best={best} newBest={game.score > bestBefore} onPlayAgain={restart} />
             )}
           </div>
-          <div className="flex h-5.5 items-center font-pixel text-[15px] leading-none">{status && `> ${status}`}</div>
+          <div className="absolute top-full left-0 mt-3 flex h-5.5 items-center font-pixel text-[15px] leading-none">{status && `> ${status}`}</div>
         </section>
 
         <Sidebar game={game} best={best} />
