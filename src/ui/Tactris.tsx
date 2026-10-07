@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ComponentProps, type ReactNode } from "react";
 import { deal } from "../engine/dealer";
 import { apply, ghost, newGame, pieceCells, type Piece, type Settings } from "../engine/engine";
 import "./tactris.css";
@@ -99,7 +99,7 @@ export default function Tactris() {
   const shown = pointer && !game.clearing.length && !game.gameOver ? ghost(game, ...pointer) : null;
   const inGhost = new Set(shown?.cells.map(([r, c]) => `${r},${c}`));
   const cellClass = (r: number, c: number) => {
-    const classes = ["cell", game.cells[r][c] ? "cell-filled" : "cell-empty"];
+    const classes = ["aspect-square", game.cells[r][c] ? "cell-filled" : "cell-empty"];
     if (inGhost.has(`${r},${c}`)) classes.push(shown!.blocked ? "cell-ghost-blocked" : "cell-ghost");
     if (shown?.completes.includes(r)) classes.push("cell-preview");
     if (game.clearing.includes(r)) classes.push("cell-flash");
@@ -117,18 +117,16 @@ export default function Tactris() {
   return (
     <div className="tactris flex min-h-screen flex-col font-pixel-body text-ink">
       <header className="flex flex-wrap items-center justify-between gap-4 border-b-4 border-ink px-11 py-[18px]">
-        <span className="wordmark">TACTRIS</span>
-        <button className="btn" onClick={restart}>
-          NEW GAME
-        </button>
+        <span className="font-pixel text-[32px] font-bold tracking-[0.04em] text-shadow-hard">TACTRIS</span>
+        <Button onClick={restart}>NEW GAME</Button>
       </header>
 
       <main className="flex flex-1 flex-wrap items-center justify-center gap-11 px-6 py-7">
-        <section aria-label="Board" className="board-column flex flex-col gap-3">
+        <section aria-label="Board" className="flex w-[min(560px,100%,calc(100vh_-_200px))] flex-col gap-3">
           <div className="relative">
             <div
               ref={boardRef}
-              className="board"
+              className="grid gap-0.5 border-[6px] border-ink bg-light p-2.5 shadow-board"
               style={{ gridTemplateColumns: `repeat(${SETTINGS.width}, minmax(0, 1fr))` }}
               onMouseLeave={() => setPointer(null)}
             >
@@ -207,8 +205,10 @@ function MiniPiece({ piece, stuck }: { piece: Piece | null; stuck?: boolean }) {
 
 function Box({ label, half, stuck, children }: { label: string; half?: boolean; stuck?: boolean; children: ReactNode }) {
   return (
-    <div className={["box", half && "flex-1 px-3", stuck && "border-error"].filter(Boolean).join(" ")}>
-      <span className="box-label">{label}</span>
+    <div
+      className={`flex flex-col gap-2 border-4 bg-backlight py-3.5 shadow-box ${half ? "flex-1 px-3" : "px-[18px]"} ${stuck ? "border-error" : "border-ink"}`}
+    >
+      <span className="font-pixel text-[13px]">{label}</span>
       {children}
     </div>
   );
@@ -218,9 +218,9 @@ function Box({ label, half, stuck, children }: { label: string; half?: boolean; 
 function GameOver(props: { score: number; best: number; newBest: boolean; onPlayAgain: () => void }) {
   return (
     <div className="game-over-dim absolute inset-1.5 flex items-center justify-center p-6">
-      <div role="dialog" aria-label="Game over" className="game-over-panel flex w-[min(320px,100%)] flex-col gap-[18px]">
+      <div role="dialog" aria-label="Game over" className="flex w-[min(320px,100%)] flex-col gap-[18px] border-[6px] border-ink bg-backlight px-[26px] pt-[26px] pb-6 shadow-panel">
         <div className="flex flex-col items-center gap-2.5">
-          <span className="wordmark text-[30px]">GAME OVER</span>
+          <span className="font-pixel text-[30px] font-bold tracking-[0.04em] text-shadow-hard">GAME OVER</span>
           {props.newBest && (
             <div className="flex items-center gap-2.5">
               <Sparkle />
@@ -231,17 +231,17 @@ function GameOver(props: { score: number; best: number; newBest: boolean; onPlay
         </div>
         <div className="flex flex-col gap-2.5 border-y-[3px] border-dashed border-dark py-3.5">
           <div className="flex items-baseline justify-between gap-3">
-            <span className="box-label">SCORE</span>
+            <span className="font-pixel text-[13px]">SCORE</span>
             <span className="text-[44px] leading-none font-bold">{props.score}</span>
           </div>
           <div className="flex items-baseline justify-between gap-3">
-            <span className="box-label">BEST</span>
+            <span className="font-pixel text-[13px]">BEST</span>
             <span className="text-[26px] leading-none font-bold">{props.best}</span>
           </div>
         </div>
-        <button className="btn h-[52px] w-full text-[18px]" onClick={props.onPlayAgain} autoFocus>
+        <Button large onClick={props.onPlayAgain} autoFocus>
           PLAY AGAIN
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -257,5 +257,16 @@ function Sparkle() {
         <rect key={`${x},${y}`} x={x} y={y} width="1" height="1" fill="var(--dark)" />
       ))}
     </svg>
+  );
+}
+
+/** The primary button: solid ink with a hard shadow, which in this design always means "clickable". */
+function Button({ large, ...props }: ComponentProps<"button"> & { large?: boolean }) {
+  const size = large ? "h-[52px] w-full text-[18px]" : "h-11 px-[18px] text-[14px]";
+  return (
+    <button
+      className={`${size} cursor-pointer bg-ink font-pixel text-backlight shadow-button hover:bg-dark focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-ink`}
+      {...props}
+    />
   );
 }

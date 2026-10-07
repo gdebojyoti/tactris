@@ -3,6 +3,10 @@
 
 /* Design: docs/design/tactris-in-game/README.md */
 
+/*
+ * Design tokens as Tailwind utilities (text-ink, shadow-box, text-shadow-hard, ...). "inline" puts each value
+ * straight into its utility, so var(--dark) etc. resolve inside .tactris, where the colours are defined.
+ */
 @theme inline {
   --color-ink: var(--ink);
   --color-dark: var(--dark);
@@ -11,6 +15,13 @@
   --color-error: var(--error);
   --font-pixel: "Silkscreen", ui-monospace, monospace;
   --font-pixel-body: "Pixelify Sans", ui-monospace, monospace;
+
+  /* Hard shadows, never blurred, and the double inset rings on boxes and the Game over panel. */
+  --shadow-button: 4px 4px 0 var(--dark);
+  --shadow-board: 8px 8px 0 var(--dark);
+  --shadow-box: inset 0 0 0 3px var(--backlight), inset 0 0 0 5px var(--dark);
+  --shadow-panel: inset 0 0 0 4px var(--backlight), inset 0 0 0 7px var(--dark), 10px 10px 0 var(--ink);
+  --text-shadow-hard: 3px 3px 0 var(--light);
 }
 
 /* The classic theme, on the game's root rather than :root so it doesn't leak into a host page. */
@@ -22,6 +33,7 @@
   --error: #c4302b;
 }
 
+/* Patterns and layered states that utilities can't express cleanly. */
 @layer components {
   /* LCD pixel texture over the backlight. */
   .tactris {
@@ -31,48 +43,11 @@
       var(--backlight);
   }
 
-  .wordmark {
-    font-family: var(--font-pixel);
-    font-weight: 700;
-    font-size: 32px;
-    letter-spacing: 0.04em;
-    text-shadow: 3px 3px 0 var(--light);
-  }
-
-  .btn {
-    height: 44px;
-    padding: 0 18px;
-    font-family: var(--font-pixel);
-    font-size: 14px;
-    color: var(--backlight);
-    background: var(--ink);
-    box-shadow: 4px 4px 0 var(--dark);
-    cursor: pointer;
-  }
-  .btn:hover {
-    background: var(--dark);
-  }
-  .btn:focus-visible {
-    outline: 3px solid var(--ink);
-    outline-offset: 3px;
-  }
-
-  .board-column {
-    width: min(560px, 100%, calc(100vh - 200px));
-  }
-  .board {
-    display: grid;
-    gap: 2px;
-    padding: 10px;
-    background: var(--light);
-    border: 6px solid var(--ink);
-    box-shadow: 8px 8px 0 var(--dark);
-  }
-
-  .cell {
-    aspect-ratio: 1;
-  }
-  /* Later states override earlier ones: a Cell can be filled, in the Ghost and in a previewed row at once. */
+  /*
+   * Cell states. A Cell can be filled, in the Ghost and in a previewed row at once, and each state sets the
+   * same properties, so later rules here deliberately override earlier ones. Utilities can't do that: two
+   * background utilities on one element resolve by Tailwind's stylesheet order, not by class order.
+   */
   .cell-empty {
     background: var(--backlight);
     box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 12%, transparent);
@@ -126,37 +101,12 @@
       inset 0 0 0 9px var(--backlight);
   }
 
-  /* Game over: the Board dimmed by backlight scanlines, under a centred panel. */
+  /* Game over: the Board dimmed by backlight scanlines. */
   .game-over-dim {
     background: repeating-linear-gradient(
       0deg,
       color-mix(in srgb, var(--backlight) 78%, transparent) 0 2px,
       color-mix(in srgb, var(--backlight) 62%, transparent) 2px 4px
     );
-  }
-  .game-over-panel {
-    padding: 26px 26px 24px;
-    background: var(--backlight);
-    border: 6px solid var(--ink);
-    box-shadow:
-      inset 0 0 0 4px var(--backlight),
-      inset 0 0 0 7px var(--dark),
-      10px 10px 0 var(--ink);
-  }
-
-  .box {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 14px 18px;
-    background: var(--backlight);
-    border: 4px solid var(--ink);
-    box-shadow:
-      inset 0 0 0 3px var(--backlight),
-      inset 0 0 0 5px var(--dark);
-  }
-  .box-label {
-    font-family: var(--font-pixel);
-    font-size: 13px;
   }
 }
