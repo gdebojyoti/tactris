@@ -1,1 +1,5 @@
-{ "outputDirectory": "dist" }
+{
+  "outputDirectory": "dist",
+  "redirects": [{ "source": "/", "destination": "/tactris", "permanent": false }],
+  "rewrites": [{ "source": "/tactris", "destination": "/index.html" }]
+}

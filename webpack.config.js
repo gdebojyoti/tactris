@@ -5,6 +5,17 @@ import pkg from "./package.json" with { type: "json" };
 export default {
   entry: "./src/index.ts",
   output: { publicPath: "auto", clean: true },
+  devServer: {
+    historyApiFallback: true,
+    // Mirrors the redirect in vercel.json.
+    setupMiddlewares: (middlewares) => [
+      (req, res, next) => {
+        if (req.url !== "/") return next();
+        res.writeHead(307, { Location: "/tactris" }).end();
+      },
+      ...middlewares,
+    ],
+  },
   resolve: { extensions: [".ts", ".tsx", ".js"] },
   module: {
     rules: [
@@ -36,6 +47,6 @@ export default {
         "react-dom": { singleton: true, requiredVersion: pkg.dependencies["react-dom"] },
       },
     }),
-    new HtmlWebpackPlugin({ template: "./src/index.html", chunks: ["main"] }),
+    new HtmlWebpackPlugin({ template: "./src/index.html", chunks: ["main"], publicPath: "/" }),
   ],
 };
