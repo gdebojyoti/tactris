@@ -1,36 +1,26 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { deal } from "../engine/dealer";
 import { apply, ghost, newGame, type Settings } from "../engine/engine";
 import Board from "./Board";
 import Button from "./Button";
 import GameOver from "./GameOver";
 import Sidebar from "./Sidebar";
+import ThemeButton from "./ThemeButton";
+import useBest from "./useBest";
+import useTheme from "./useTheme";
 import "./tactris.css";
 
 const SETTINGS: Settings = { allowRotation: true, width: 10, height: 10 };
 const FLASH_MS = 200;
 
-// Storage can be missing or blocked (private windows, blocked site data), so the best score is optional.
-const BEST_KEY = "tactris.best";
-const loadBest = () => {
-  try {
-    return Number(localStorage.getItem(BEST_KEY)) || 0;
-  } catch {
-    return 0;
-  }
-};
-const saveBest = (score: number) => {
-  try {
-    localStorage.setItem(BEST_KEY, String(score));
-  } catch {
-    // Not saved; the best score still shows for this visit.
-  }
-};
-
 const startGame = () => newGame(SETTINGS, deal(SETTINGS), deal(SETTINGS));
 
 export default function Tactris() {
   const [game, setGame] = useState(startGame);
+  const best = useBest(game.score);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const theme = useTheme(rootRef);
+
   // The Cell under the pointer, or null when the pointer is off the Board.
   const [pointer, setPointer] = useState<[number, number] | null>(null);
   // Where the mouse was when the last Piece was placed. Until it moves from there, or the player turns
@@ -50,19 +40,9 @@ export default function Tactris() {
     return () => clearTimeout(timer);
   }, [game]);
 
-  // The best score updates, and is saved, the moment the score passes it.
-  const [best, setBest] = useState(loadBest);
-  useEffect(() => {
-    if (game.score <= best) return;
-    setBest(game.score);
-    saveBest(game.score);
-  }, [game.score, best]);
-  // The best score when this game started, so Game over can tell whether it was beaten.
-  const [bestBefore, setBestBefore] = useState(best);
-
   const restart = () => {
     setGame(startGame());
-    setBestBefore(best);
+    best.newGame();
   };
 
   const rotate = useCallback((direction: "cw" | "ccw") => {
@@ -102,10 +82,13 @@ export default function Tactris() {
         : "";
 
   return (
-    <div className="tactris flex min-h-screen flex-col font-pixel-body text-ink">
+    <div ref={rootRef} data-theme={theme.id} className="tactris flex min-h-screen flex-col font-pixel-body text-ink">
       <header className="flex flex-wrap items-center justify-between gap-4 border-b-4 border-ink px-11 py-4.5">
         <span className="font-pixel text-[32px] font-bold tracking-[0.04em] text-shadow-hard">TACTRIS</span>
-        <Button onClick={restart}>NEW GAME</Button>
+        <div className="flex items-center gap-4">
+          <ThemeButton theme={theme.name} onClick={theme.next} />
+          <Button onClick={restart}>NEW GAME</Button>
+        </div>
       </header>
 
       <main className="flex flex-1 flex-wrap items-center justify-center gap-11 px-6 py-7">
@@ -114,13 +97,13 @@ export default function Tactris() {
           <div className="relative">
             <Board game={game} ghost={shown} onPointer={setPointer} onMove={onMove} onPlace={place} onRotate={rotate} />
             {game.gameOver && (
-              <GameOver score={game.score} best={best} newBest={game.score > bestBefore} onPlayAgain={restart} />
+              <GameOver score={game.score} best={best.score} newBest={best.newBest} onPlayAgain={restart} />
             )}
           </div>
           <div className="absolute top-full left-0 mt-3 flex h-5.5 items-center font-pixel text-[15px] leading-none">{status && `> ${status}`}</div>
         </section>
 
-        <Sidebar game={game} best={best} />
+        <Sidebar game={game} best={best.score} />
       </main>
     </div>
   );

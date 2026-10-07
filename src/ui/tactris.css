@@ -33,6 +33,33 @@
   --error: #c4302b;
 }
 
+/* The other themes, from docs/design/tactris-in-game/tokens.css, picked with data-theme on the same root.
+   They keep the classic red for error, so a blocked Ghost is red in every theme. */
+.tactris[data-theme="amber"] {
+  --ink: #3a1c00;
+  --dark: #8a4b08;
+  --light: #e09a2a;
+  --backlight: #f5b748;
+}
+.tactris[data-theme="ice-blue"] {
+  --ink: #0b1e3a;
+  --dark: #2c5a8c;
+  --light: #8ec3e8;
+  --backlight: #a9d6f2;
+}
+.tactris[data-theme="greyscale"] {
+  --ink: #1f1f1f;
+  --dark: #5b5b5b;
+  --light: #a8a8a0;
+  --backlight: #c6c7bc;
+}
+.tactris[data-theme="berry"] {
+  --ink: #3d1030;
+  --dark: #9b3b78;
+  --light: #e8a0c8;
+  --backlight: #f7c6df;
+}
+
 /* Patterns and layered states that utilities can't express cleanly. */
 @layer components {
   /* LCD pixel texture over the backlight. */
