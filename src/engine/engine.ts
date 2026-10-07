@@ -41,6 +41,8 @@ export type Game = {
   current: Piece;
   next: Piece | null;
   score: number;
+  /** Lines cleared so far in this game. */
+  lines: number;
   /** Full rows waiting to be removed by a "clear" action, so they can be flashed first. */
   clearing: number[];
   gameOver: boolean;
@@ -57,7 +59,7 @@ export type Action =
 
 export function newGame(settings: Settings, current: Piece, next: Piece): Game {
   const cells = Array.from({ length: settings.height }, () => Array<boolean>(settings.width).fill(false));
-  const game = { settings, cells, current, next, score: 0, clearing: [], gameOver: false };
+  const game = { settings, cells, current, next, score: 0, lines: 0, clearing: [], gameOver: false };
   return { ...game, gameOver: !fitsAnywhere(game) };
 }
 
@@ -82,7 +84,14 @@ export function ghost(game: Game, row: number, col: number) {
   const top = clamp(row - Math.floor((rows.length - 1) / 2), height - rows.length);
   const left = clamp(col - Math.floor((rows[0].length - 1) / 2), width - rows[0].length);
   const cells = cellsAt(rows, top, left);
-  return { cells: cells.filter(([r, c]) => r < height && c < width), blocked: !isFree(game, cells) };
+  const blocked = !isFree(game, cells);
+  // Rows this placement would complete, for the row preview.
+  const completes = blocked
+    ? []
+    : game.cells.flatMap((line, r) =>
+        line.every((filled, c) => filled || cells.some(([gr, gc]) => gr === r && gc === c)) ? [r] : [],
+      );
+  return { cells: cells.filter(([r, c]) => r < height && c < width), blocked, completes };
 }
 
 export function apply(game: Game, action: Action): Game {
@@ -110,7 +119,8 @@ export function apply(game: Game, action: Action): Game {
   for (const [r, c] of filling) cells[r][c] = true;
   const clearing = cells.flatMap((row, r) => (row.every(Boolean) ? [r] : []));
   const score = game.score + 4 + CLEAR_POINTS[clearing.length];
-  const placed = { ...game, cells, current: game.next, next: null, score, clearing };
+  const lines = game.lines + clearing.length;
+  const placed = { ...game, cells, current: game.next, next: null, score, lines, clearing };
   // With rows waiting to clear, Game over is decided after the clear.
   return { ...placed, gameOver: !clearing.length && !fitsAnywhere(placed) };
 }

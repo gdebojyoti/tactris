@@ -90,8 +90,8 @@ test("the Ghost lists the Cells the Piece would fill, and is blocked when any is
     { type: "place", row: 0, col: 0 },
     { type: "receive", piece: piece("L") },
   );
-  expect(ghost(game, 0, 1)).toEqual({ cells: [[0, 1], [1, 0], [1, 1], [1, 2]], blocked: true });
-  expect(ghost(game, 2, 3)).toEqual({ cells: [[2, 3], [3, 2], [3, 3], [3, 4]], blocked: false });
+  expect(ghost(game, 0, 1)).toEqual({ cells: [[0, 1], [1, 0], [1, 1], [1, 2]], blocked: true, completes: [] });
+  expect(ghost(game, 2, 3)).toEqual({ cells: [[2, 3], [3, 2], [3, 3], [3, 4]], blocked: false, completes: [] });
 });
 
 test("each placement scores 4 points", () => {
@@ -200,13 +200,13 @@ test("a Piece that only fits once the full rows are cleared doesn't end the game
 
 test("a Piece taller than the Board gives a blocked Ghost, clipped to the Board, and can't be placed", () => {
   const game = newGame(settings({ width: 4, height: 3 }), piece("I", 1), piece("O"));
-  expect(ghost(game, 1, 1)).toEqual({ cells: [[0, 1], [1, 1], [2, 1]], blocked: true });
+  expect(ghost(game, 1, 1)).toEqual({ cells: [[0, 1], [1, 1], [2, 1]], blocked: true, completes: [] });
   expect(play(game, { type: "place", row: 1, col: 1 })).toEqual(game);
 });
 
 test("a Piece wider than the Board gives a blocked Ghost, clipped to the Board, and can't be placed", () => {
   const game = newGame(settings({ width: 3, height: 10 }), piece("I"), piece("O"));
-  expect(ghost(game, 0, 1)).toEqual({ cells: [[0, 0], [0, 1], [0, 2]], blocked: true });
+  expect(ghost(game, 0, 1)).toEqual({ cells: [[0, 0], [0, 1], [0, 2]], blocked: true, completes: [] });
   expect(play(game, { type: "place", row: 0, col: 1 })).toEqual(game);
 });
 
@@ -248,4 +248,25 @@ test("a Piece rotated next to an edge is pushed back inside the Board", () => {
     { type: "place", row: 0, col: 4 },
   );
   expect(board(game)).toEqual(["...#.", "...##", "...#.", "....."]);
+});
+
+test("the game counts the lines cleared, including several at once", () => {
+  const game = play(
+    newGame(settings({ width: 2, height: 3 }), piece("O"), piece("O")),
+    { type: "place", row: 1, col: 0 },
+    { type: "receive", piece: piece("T") },
+  );
+  expect(game.lines).toBe(2);
+});
+
+test("a valid Ghost lists the rows it would complete; a blocked one lists none", () => {
+  const game = play(
+    newGame(settings({ width: 4, height: 4 }), piece("O"), piece("O")),
+    { type: "place", row: 0, col: 0 },
+    { type: "receive", piece: piece("T") },
+  );
+  expect(board(game)).toEqual(["##..", "##..", "....", "...."]);
+  expect(ghost(game, 0, 2).completes).toEqual([0, 1]); // fills the gap in both rows
+  expect(ghost(game, 3, 2).completes).toEqual([]); // valid, completes nothing
+  expect(ghost(game, 0, 1).completes).toEqual([]); // blocked
 });
