@@ -5,7 +5,8 @@
   "scripts": {
     "start": "webpack serve --mode development",
     "build": "webpack --mode production",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "react": "^19.3.0",
@@ -23,6 +24,7 @@
     "style-loader": "^4.0.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2",
+    "vitest": "^5.0.3",
     "webpack": "^5.111.1",
     "webpack-cli": "^7.2.3",
     "webpack-dev-server": "^6.0.0"
