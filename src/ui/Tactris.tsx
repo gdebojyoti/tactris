@@ -1,10 +1,13 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { deal } from "../engine/dealer";
 import { apply, ghost, newGame, type Settings } from "../engine/engine";
 import "./tactris.css";
 
 const SETTINGS: Settings = { allowRotation: true, width: 10, height: 10 };
 const FLASH_MS = 200;
+// About half a mouse-wheel click (100px in most browsers), so every click turns once.
+const WHEEL_STEP = 50;
+const WHEEL_COOLDOWN_MS = 150;
 
 const startGame = () => newGame(SETTINGS, deal(SETTINGS), deal(SETTINGS));
 
@@ -19,6 +22,41 @@ export default function Tactris() {
     const timer = setTimeout(() => setGame((g) => apply(g, { type: "clear" })), FLASH_MS);
     return () => clearTimeout(timer);
   }, [game]);
+
+  const rotate = (direction: "cw" | "ccw") => setGame((g) => apply(g, { type: "rotate", direction }));
+
+  // E turns clockwise and Q counter-clockwise, anywhere on the page.
+  useEffect(() => {
+    if (!SETTINGS.allowRotation) return;
+    const onKey = (event: KeyboardEvent) => {
+      const key = event.key.toLowerCase();
+      if (key === "e" || key === "q") rotate(key === "e" ? "cw" : "ccw");
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  // The wheel over the Board turns the Piece instead of scrolling the page: up is clockwise. Attached
+  // directly so it can call preventDefault, which React's passive wheel handler can't. A trackpad sends
+  // many small deltas, so they add up to about one wheel click, with at most one turn per cooldown.
+  const boardRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const board = boardRef.current;
+    if (!board || !SETTINGS.allowRotation) return;
+    let distance = 0;
+    let lastTurn = -Infinity;
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      if (event.timeStamp - lastTurn < WHEEL_COOLDOWN_MS) return void (distance = 0);
+      distance += event.deltaMode === WheelEvent.DOM_DELTA_LINE ? event.deltaY * 40 : event.deltaY;
+      if (Math.abs(distance) < WHEEL_STEP) return;
+      rotate(distance < 0 ? "cw" : "ccw");
+      distance = 0;
+      lastTurn = event.timeStamp;
+    };
+    board.addEventListener("wheel", onWheel, { passive: false });
+    return () => board.removeEventListener("wheel", onWheel);
+  }, []);
 
   const place = (row: number, col: number) =>
     setGame((g) => {
@@ -50,6 +88,7 @@ export default function Tactris() {
       <main className="flex flex-1 flex-wrap items-center justify-center gap-11 px-6 py-7">
         <section aria-label="Board" className="board-column flex flex-col gap-3">
           <div
+            ref={boardRef}
             className="board"
             style={{ gridTemplateColumns: `repeat(${SETTINGS.width}, minmax(0, 1fr))` }}
             onMouseLeave={() => setPointer(null)}
