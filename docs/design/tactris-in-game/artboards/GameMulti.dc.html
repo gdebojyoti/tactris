@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tactris — Playing, 2 lines</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&amp;family=Pixelify+Sans:wght@500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#9bbc0f}
+a{color:#0f380f}a:hover{color:#306230}
+.cell{aspect-ratio:1;box-sizing:border-box;position:relative}
+.empty{background:#9bbc0f;box-shadow:inset 0 0 0 1px rgba(15,56,15,.12)}
+.filled{border:3px solid #0f380f;background:#306230;box-shadow:inset 3px 3px 0 #8bac0f}
+.ghost{background:#9bbc0f;border:3px dashed #0f380f;box-shadow:inset 0 0 0 3px #9bbc0f,inset 0 0 0 7px #306230}
+.ghost-bad{background:repeating-linear-gradient(45deg,#c4302b 0 2px,transparent 2px 4px),repeating-linear-gradient(-45deg,#c4302b 0 2px,transparent 2px 4px),#9bbc0f;border:3px solid #c4302b;box-shadow:none}
+.cell.ghost-hit{background:repeating-linear-gradient(45deg,#9bbc0f 0 2px,transparent 2px 5px),#c4302b;border:3px solid #c4302b;box-shadow:none}
+.cell.preview{background:#8bac0f;border:3px solid #0f380f;box-shadow:inset 0 0 0 4px #0f380f}
+.cell.preview.ghost{border-style:dashed;box-shadow:inset 0 0 0 4px #0f380f,inset 0 0 0 8px #8bac0f,inset 0 0 0 11px #306230}
+.cell.flash{background:#0f380f;border:3px solid #0f380f;box-shadow:inset 0 0 0 3px #9bbc0f,inset 0 0 0 6px #0f380f,inset 0 0 0 9px #9bbc0f}
+.ptr{position:absolute;left:50%;top:50%;width:16px;height:24px;z-index:2;pointer-events:none}
+.mcell{width:18px;height:18px;box-sizing:border-box}
+.mempty{background:transparent}
+.mfill{border:3px solid #0f380f;background:#306230;box-shadow:inset 3px 3px 0 #8bac0f}
+.box{border:4px solid #0f380f;box-shadow:inset 0 0 0 3px #9bbc0f,inset 0 0 0 5px #306230;padding:14px 18px;display:flex;flex-direction:column;gap:8px;background:#9bbc0f}
+.lbl{font-family:'Silkscreen',monospace;font-size:13px}
+.lbtn{font-family:'Silkscreen',monospace;font-size:14px;color:#9bbc0f;background:#0f380f;border:0;height:44px;padding:0 18px;cursor:pointer;box-shadow:4px 4px 0 #306230}
+.lbtn:hover{background:#306230}
+.lbtn.alt{color:#0f380f;background:#8bac0f;box-shadow:4px 4px 0 #0f380f}
+.lbtn.alt:hover{background:#9bbc0f}
+</style>
+</helmet>
+<div style="min-height: 100vh; box-sizing: border-box; display: flex; flex-direction: column; color: #0f380f; font-family: 'Pixelify Sans', monospace; background: repeating-linear-gradient(0deg, rgba(15,56,15,0.05) 0 1px, transparent 1px 4px), repeating-linear-gradient(90deg, rgba(15,56,15,0.05) 0 1px, transparent 1px 4px), #9bbc0f">
+  <header style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; padding: 18px 44px; border-bottom: 4px solid #0f380f">
+    <span style="font-family: 'Silkscreen', monospace; font-weight: 700; font-size: 32px; letter-spacing: 0.04em; text-shadow: 3px 3px 0 #8bac0f">TACTRIS</span>
+    <nav style="display: flex; gap: 14px">
+      <button class="lbtn">NEW GAME</button>
+      <button class="lbtn alt">OPTIONS</button>
+    </nav>
+  </header>
+
+  <main style="flex: 1; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 44px; padding: 28px 24px">
+    <section aria-label="Board" style="width: min(560px, 100%, calc(100vh - 200px)); display: flex; flex-direction: column; gap: 12px">
+      <div style="display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 2px; padding: 10px; background: #8bac0f; border: 6px solid #0f380f; box-shadow: 8px 8px 0 #306230">
+        <sc-for list="{{cells}}" as="cell" hint-placeholder-count="100">
+          <div class="{{cell.cls}}">
+            <sc-if value="{{cell.cursor}}" hint-placeholder-val="{{ false }}">
+              <svg class="ptr" viewBox="0 0 12 18" aria-hidden="true"><path d="M1 1 V15 L4.5 11.5 L7 17 L9.5 16 L7 10.5 H12 Z" fill="#ffffff" stroke="#0f380f" stroke-width="1.2" stroke-linejoin="round"></path></svg>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+      <div style="min-height: 22px; display: flex; align-items: center; gap: 10px; font-family: 'Silkscreen', monospace; font-size: 15px">
+        <sc-if value="{{hasStatus}}" hint-placeholder-val="{{ false }}">          <span>&gt; {{status}}</span>
+        </sc-if>
+      </div>
+    </section>
+
+    <aside aria-label="Game info" style="width: 250px; display: flex; flex-direction: column; gap: 16px">
+      <div class="box">
+        <span class="lbl">SCORE</span>
+        <span style="font-size: 44px; font-weight: 700; line-height: 1; text-align: right">{{score}}</span>
+      </div>
+      <div style="display: flex; gap: 16px">
+        <div class="box" style="flex: 1; padding: 14px 12px">
+          <span class="lbl">LINES</span>
+          <span style="font-size: 28px; font-weight: 700; line-height: 1; text-align: right">{{cleared}}</span>
+        </div>
+        <div class="box" style="flex: 1; padding: 14px 12px">
+          <span class="lbl">BEST</span>
+          <span style="font-size: 28px; font-weight: 700; line-height: 1; text-align: right">3880</span>
+        </div>
+      </div>
+      <div style="display: flex; gap: 16px">
+        <div class="box" style="flex: 1; gap: 14px; padding: 14px 12px">
+          <span class="lbl">NOW</span>
+          <div style="height: 38px; display: flex; align-items: center; justify-content: center; padding: 4px 0">
+            <div style="display: grid; grid-template-columns: repeat({{curCols}}, 18px); gap: 2px">
+              <sc-for list="{{cur}}" as="m" hint-placeholder-count="6"><div class="{{m.cls}}"></div></sc-for>
+            </div>
+          </div>
+        </div>
+        <div class="box" style="flex: 1; gap: 14px; padding: 14px 12px">
+          <span class="lbl">NEXT</span>
+          <div style="height: 38px; display: flex; align-items: center; justify-content: center; padding: 4px 0">
+            <div style="display: grid; grid-template-columns: repeat({{nextCols}}, 18px); gap: 2px">
+              <sc-for list="{{next}}" as="m" hint-placeholder-count="4"><div class="{{m.cls}}"></div></sc-for>
+            </div>
+          </div>
+        </div>
+      </div>
+      <sc-if value="{{showHint}}" hint-placeholder-val="{{ true }}">
+        <div class="box" style="gap: 10px">
+          <span class="lbl">CONTROLS</span>
+          <div style="display: flex; justify-content: space-between; gap: 12px; font-size: 15px"><span>CLICK</span><span>PLACE</span></div>
+          <div style="display: flex; justify-content: space-between; gap: 12px; font-size: 15px"><span>WHEEL UP / E</span><span>TURN CW</span></div>
+          <div style="display: flex; justify-content: space-between; gap: 12px; font-size: 15px"><span>WHEEL DOWN / Q</span><span>TURN CCW</span></div>
+        </div>
+      </sc-if>
+    </aside>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["start","playing","multi","blocked","flash","norotate"],"default":"multi"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var state = this.props.state ?? 'multi';
+    var E = '..........';
+    var EMPTY = [E, E, E, E, E, E, E, E, E, E];
+    var A = ["..........", "..........", "......OO..", ".SS...OO..", "SS........", "...J......", "...JJJ....", ".T........", "TTZZLII.LL", "ZZ.LLSSOO."];
+    var A2 = ["..........", "..........", "......OO..", ".SS...OO..", "SS........", "...J......", "...JJJ....", ".T....TTT.", "TTZZLIITLL", "ZZ.LLSSOO."];
+    var M = ["..........", "..........", ".JJJ......", "...J...OO.", ".......OO.", "SS........", ".SS....T..", "......TTT.", "IIII..LLLZ", "ZZTT..LSSZ"];
+    var cfgs = {
+      start: { board: EMPTY, ghost: [], ptr: '', score: '0', cleared: '0', cur: ['.T.', 'TTT'], next: ['IIII'], hint: true },
+      playing: { board: A, ghost: ['7,6', '7,7', '7,8', '8,7'], ptr: '7,7', score: '1240', cleared: '12', cur: ['TTT', '.T.'], next: ['.SS', 'SS.'], hint: true },
+      multi: { board: M, ghost: ['8,4', '8,5', '9,4', '9,5'], ptr: '8,4', score: '1856', cleared: '17', cur: ['OO.', 'OO.'], next: ['J..', 'JJJ'], hint: true },
+      blocked: { board: A, ghost: ['3,5', '3,6', '3,7', '4,6'], ptr: '3,6', blocked: true, score: '1240', cleared: '12', cur: ['TTT', '.T.'], next: ['.SS', 'SS.'], hint: true },
+      flash: { board: A2, ghost: [], ptr: '', flash: true, score: '1344', cleared: '13', cur: ['.SS', 'SS.'], next: ['..L', 'LLL'], hint: true },
+      norotate: { board: A, ghost: ['7,6', '7,7', '7,8', '8,7'], ptr: '7,7', score: '1240', cleared: '12', cur: ['TTT', '.T.'], next: ['.SS', 'SS.'], hint: false }
+    };
+    var cfg = cfgs[state] || cfgs.start;
+    var cells = [];
+    var lines = 0;
+    for (var r = 0; r < 10; r++) {
+      var row = cfg.board[r];
+      var full = true;
+      for (var c = 0; c < 10; c++) { if (row[c] === '.' && cfg.ghost.indexOf(r + ',' + c) < 0) full = false; }
+      var preview = full && !cfg.blocked && !cfg.flash && cfg.ghost.length > 0;
+      var flashRow = full && !!cfg.flash;
+      if (preview) lines++;
+      for (var c2 = 0; c2 < 10; c2++) {
+        var key = r + ',' + c2;
+        var ch = row[c2];
+        var g = cfg.ghost.indexOf(key) >= 0;
+        var cls = 'cell ' + (ch === '.' ? 'empty' : 'filled');
+        if (g) cls += cfg.blocked ? (ch === '.' ? ' ghost-bad' : ' ghost-hit') : ' ghost';
+        if (preview) cls += ' preview';
+        if (flashRow) cls += ' flash';
+        cells.push({ cls: cls, cursor: key === cfg.ptr });
+      }
+    }
+    var next = [];
+    cfg.next.forEach(function (row) { row.split('').forEach(function (ch) { next.push({ cls: 'mcell ' + (ch === '.' ? 'mempty' : 'mfill') }); }); });
+    var cur = [];
+    cfg.cur.forEach(function (row) { row.split('').forEach(function (ch) { cur.push({ cls: 'mcell ' + (ch === '.' ? 'mempty' : 'mfill') }); }); });
+    var status = cfg.blocked ? 'BLOCKED' : (lines > 0 ? lines + (lines === 1 ? ' LINE CLEAR' : ' LINES CLEAR') : '');
+    return {
+      cells: cells,
+      next: next,
+      cur: cur,
+      curCols: cfg.cur[0].length,
+      nextCols: cfg.next[0].length,
+      cleared: cfg.cleared,
+      score: cfg.score,
+      showHint: cfg.hint,
+      status: status,
+      hasStatus: status !== '',
+      isBlocked: !!cfg.blocked
+    };
+  }
+}
+</script>
+</body>
+</html>

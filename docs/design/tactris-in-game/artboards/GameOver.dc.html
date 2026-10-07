@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tactris — Game over</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&amp;family=Pixelify+Sans:wght@500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#9bbc0f}
+a{color:#0f380f}a:hover{color:#306230}
+.cell{aspect-ratio:1;box-sizing:border-box;position:relative}
+.empty{background:#9bbc0f;box-shadow:inset 0 0 0 1px rgba(15,56,15,.12)}
+.filled{border:3px solid #0f380f;background:#306230;box-shadow:inset 3px 3px 0 #8bac0f}
+.mcell{width:18px;height:18px;box-sizing:border-box}
+.mempty{background:transparent}
+.mfill{border:3px solid #0f380f;background:#306230;box-shadow:inset 3px 3px 0 #8bac0f}
+.mstuck{border:3px solid #c4302b;background:repeating-linear-gradient(45deg,#9bbc0f 0 2px,transparent 2px 5px),#c4302b}
+.box{border:4px solid #0f380f;box-shadow:inset 0 0 0 3px #9bbc0f,inset 0 0 0 5px #306230;padding:14px 18px;display:flex;flex-direction:column;gap:8px;background:#9bbc0f}
+.box.stuck{border-color:#c4302b}
+.lbl{font-family:'Silkscreen',monospace;font-size:13px}
+.lbtn{font-family:'Silkscreen',monospace;font-size:14px;color:#9bbc0f;background:#0f380f;border:0;height:44px;padding:0 18px;cursor:pointer;box-shadow:4px 4px 0 #306230}
+.lbtn:hover{background:#306230}
+.lbtn.alt{color:#0f380f;background:#8bac0f;box-shadow:4px 4px 0 #0f380f}
+.lbtn.alt:hover{background:#9bbc0f}
+.lbtn.big{font-size:18px;height:52px;width:100%}
+</style>
+</helmet>
+<div style="min-height: 100vh; box-sizing: border-box; display: flex; flex-direction: column; color: #0f380f; font-family: 'Pixelify Sans', monospace; background: repeating-linear-gradient(0deg, rgba(15,56,15,0.05) 0 1px, transparent 1px 4px), repeating-linear-gradient(90deg, rgba(15,56,15,0.05) 0 1px, transparent 1px 4px), #9bbc0f">
+  <header style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; padding: 18px 44px; border-bottom: 4px solid #0f380f">
+    <span style="font-family: 'Silkscreen', monospace; font-weight: 700; font-size: 32px; letter-spacing: 0.04em; text-shadow: 3px 3px 0 #8bac0f">TACTRIS</span>
+    <nav style="display: flex; gap: 14px">
+      <button class="lbtn">NEW GAME</button>
+      <button class="lbtn alt">OPTIONS</button>
+    </nav>
+  </header>
+
+  <main style="flex: 1; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 44px; padding: 28px 24px">
+    <section aria-label="Board" style="width: min(560px, 100%, calc(100vh - 200px)); display: flex; flex-direction: column; gap: 12px">
+      <div style="position: relative">
+        <div style="display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 2px; padding: 10px; background: #8bac0f; border: 6px solid #0f380f; box-shadow: 8px 8px 0 #306230">
+          <sc-for list="{{cells}}" as="cell" hint-placeholder-count="100">
+            <div class="{{cell.cls}}"></div>
+          </sc-for>
+        </div>
+        <div style="position: absolute; inset: 6px; background: repeating-linear-gradient(0deg, rgba(155,188,15,0.78) 0 2px, rgba(155,188,15,0.62) 2px 4px); display: flex; align-items: center; justify-content: center; padding: 24px; box-sizing: border-box">
+          <div role="dialog" aria-label="Game over" style="width: min(320px, 100%); box-sizing: border-box; display: flex; flex-direction: column; gap: 18px; padding: 26px 26px 24px; background: #9bbc0f; border: 6px solid #0f380f; box-shadow: inset 0 0 0 4px #9bbc0f, inset 0 0 0 7px #306230, 10px 10px 0 #0f380f">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 10px">
+              <span style="font-family: 'Silkscreen', monospace; font-weight: 700; font-size: 30px; letter-spacing: 0.04em; text-shadow: 3px 3px 0 #8bac0f">GAME OVER</span>
+              <sc-if value="{{isBest}}" hint-placeholder-val="{{ false }}">
+                <div style="display: flex; align-items: center; gap: 10px">
+                  <svg width="21" height="21" viewBox="0 0 7 7" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="0" width="1" height="7" fill="#0f380f"></rect><rect x="0" y="3" width="7" height="1" fill="#0f380f"></rect><rect x="1" y="1" width="1" height="1" fill="#306230"></rect><rect x="5" y="1" width="1" height="1" fill="#306230"></rect><rect x="1" y="5" width="1" height="1" fill="#306230"></rect><rect x="5" y="5" width="1" height="1" fill="#306230"></rect></svg>
+                  <span style="font-family: 'Silkscreen', monospace; font-weight: 700; font-size: 17px; letter-spacing: 0.06em">NEW BEST!</span>
+                  <svg width="21" height="21" viewBox="0 0 7 7" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="0" width="1" height="7" fill="#0f380f"></rect><rect x="0" y="3" width="7" height="1" fill="#0f380f"></rect><rect x="1" y="1" width="1" height="1" fill="#306230"></rect><rect x="5" y="1" width="1" height="1" fill="#306230"></rect><rect x="1" y="5" width="1" height="1" fill="#306230"></rect><rect x="5" y="5" width="1" height="1" fill="#306230"></rect></svg>
+                </div>
+              </sc-if>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px; border-top: 3px dashed #306230; border-bottom: 3px dashed #306230; padding: 14px 0">
+              <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px">
+                <span class="lbl">SCORE</span>
+                <span style="font-size: 44px; font-weight: 700; line-height: 1">{{score}}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px">
+                <span class="lbl">BEST</span>
+                <span style="font-size: 26px; font-weight: 700; line-height: 1">{{best}}</span>
+              </div>
+            </div>
+            <button class="lbtn big">PLAY AGAIN</button>
+          </div>
+        </div>
+      </div>
+      <div style="min-height: 22px; display: flex; align-items: center; gap: 10px; font-family: 'Silkscreen', monospace; font-size: 15px">
+        <span>&gt; NO MOVES LEFT</span>
+      </div>
+    </section>
+
+    <aside aria-label="Game info" style="width: 250px; display: flex; flex-direction: column; gap: 16px">
+      <div class="box">
+        <span class="lbl">SCORE</span>
+        <span style="font-size: 44px; font-weight: 700; line-height: 1; text-align: right">{{score}}</span>
+      </div>
+      <div style="display: flex; gap: 16px">
+        <div class="box" style="flex: 1; padding: 14px 12px">
+          <span class="lbl">LINES</span>
+          <span style="font-size: 28px; font-weight: 700; line-height: 1; text-align: right">{{cleared}}</span>
+        </div>
+        <div class="box" style="flex: 1; padding: 14px 12px">
+          <span class="lbl">BEST</span>
+          <span style="font-size: 28px; font-weight: 700; line-height: 1; text-align: right">{{best}}</span>
+        </div>
+      </div>
+      <div style="display: flex; gap: 16px">
+        <div class="box stuck" style="flex: 1; gap: 14px; padding: 14px 12px">
+          <span class="lbl">NOW</span>
+          <div style="height: 38px; display: flex; align-items: center; justify-content: center; padding: 4px 0">
+            <div style="display: grid; grid-template-columns: repeat({{curCols}}, 18px); gap: 2px">
+              <sc-for list="{{cur}}" as="m" hint-placeholder-count="4"><div class="{{m.cls}}"></div></sc-for>
+            </div>
+          </div>
+        </div>
+        <div class="box" style="flex: 1; gap: 14px; padding: 14px 12px">
+          <span class="lbl">NEXT</span>
+          <div style="height: 38px; display: flex; align-items: center; justify-content: center; padding: 4px 0">
+            <div style="display: grid; grid-template-columns: repeat({{nextCols}}, 18px); gap: 2px">
+              <sc-for list="{{next}}" as="m" hint-placeholder-count="6"><div class="{{m.cls}}"></div></sc-for>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="box" style="gap: 10px">
+        <span class="lbl">CONTROLS</span>
+        <div style="display: flex; justify-content: space-between; gap: 12px; font-size: 15px"><span>CLICK</span><span>PLACE</span></div>
+        <div style="display: flex; justify-content: space-between; gap: 12px; font-size: 15px"><span>WHEEL UP / E</span><span>TURN CW</span></div>
+        <div style="display: flex; justify-content: space-between; gap: 12px; font-size: 15px"><span>WHEEL DOWN / Q</span><span>TURN CCW</span></div>
+      </div>
+    </aside>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"variant":{"editor":"enum","options":["normal","newbest"],"default":"normal"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var isBest = (this.props.variant ?? 'normal') === 'newbest';
+    var board = [".XX.X.XX.X", "X.XX.XX.XX", "XX.XX.X.XX", ".XXX.XX.XX", "XX.XXX.XX.", "X.XX.XXX.X", "XXX.XX.XXX", ".XX.XXXX.X", "XX.XX.XX.X", "X.XXX.XXX."];
+    var cells = [];
+    for (var r = 0; r < 10; r++) {
+      for (var c = 0; c < 10; c++) {
+        cells.push({ cls: 'cell ' + (board[r][c] === '.' ? 'empty' : 'filled') });
+      }
+    }
+    var build = function (rows, fill) {
+      var out = [];
+      rows.forEach(function (row) { row.split('').forEach(function (ch) { out.push({ cls: 'mcell ' + (ch === '.' ? 'mempty' : fill) }); }); });
+      return out;
+    };
+    var curRows = ['OO', 'OO'];
+    var nextRows = ['J..', 'JJJ'];
+    return {
+      cells: cells,
+      cur: build(curRows, 'mstuck'),
+      next: build(nextRows, 'mfill'),
+      curCols: curRows[0].length,
+      nextCols: nextRows[0].length,
+      isBest: isBest,
+      score: isBest ? '4120' : '2716',
+      best: isBest ? '4120' : '3880',
+      cleared: isBest ? '33' : '21'
+    };
+  }
+}
+</script>
+</body>
+</html>

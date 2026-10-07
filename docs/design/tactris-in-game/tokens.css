@@ -1,0 +1,73 @@
+/*
+ * Tactris — colour tokens
+ *
+ * Every theme is the same five roles. The UI only ever references roles,
+ * never raw hex values, so switching themes is a matter of swapping this block.
+ *
+ *   --ink        darkest: text, borders, placed-piece outline, flash fill
+ *   --dark       placed-piece fill, ghost inner ring, hard drop shadows
+ *   --light      board well, row-preview fill, highlights, secondary button
+ *   --backlight  page / screen background, empty cells, ghost fill
+ *   --error      blocked ghost, the piece that caused game over
+ *
+ * "classic" is the shipping theme. The other five are the future
+ * user-selectable themes (see README.md → Themes).
+ */
+
+:root,
+[data-theme="classic"] {
+  --ink: #0f380f;
+  --dark: #306230;
+  --light: #8bac0f;
+  --backlight: #9bbc0f;
+  --error: #c4302b;
+}
+
+/* ---- Future themes ------------------------------------------------------
+ * --error is intentionally left as the theme's ink colour, exactly as these
+ * themes were drawn on the canvas (blocked = pattern only, no red).
+ * The spec requires a red blocked Ghost, so each theme still needs its own
+ * error colour chosen and contrast-checked before it ships. See README.md.
+ * ------------------------------------------------------------------------ */
+
+[data-theme="amber"] {
+  --ink: #3a1c00;
+  --dark: #8a4b08;
+  --light: #e09a2a;
+  --backlight: #f5b748;
+  --error: #3a1c00; /* TBD */
+}
+
+[data-theme="ice-blue"] {
+  --ink: #0b1e3a;
+  --dark: #2c5a8c;
+  --light: #8ec3e8;
+  --backlight: #a9d6f2;
+  --error: #0b1e3a; /* TBD */
+}
+
+[data-theme="greyscale"] {
+  --ink: #1f1f1f;
+  --dark: #5b5b5b;
+  --light: #a8a8a0;
+  --backlight: #c6c7bc;
+  --error: #1f1f1f; /* TBD */
+}
+
+/* Inverted: light ink on a dark backlight. Roles keep their meaning
+   (ink = outlines/text, backlight = background) — only the values flip. */
+[data-theme="night"] {
+  --ink: #a6f08e;
+  --dark: #3f8a4a;
+  --light: #1d3322;
+  --backlight: #0f1a12;
+  --error: #a6f08e; /* TBD */
+}
+
+[data-theme="berry"] {
+  --ink: #3d1030;
+  --dark: #9b3b78;
+  --light: #e8a0c8;
+  --backlight: #f7c6df;
+  --error: #3d1030; /* TBD */
+}
