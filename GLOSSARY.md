@@ -16,6 +16,10 @@ _Avoid_: Selected cell, block, tile
 The removal of a fully filled row, after which every row above it drops down by exactly one row as a rigid whole; gaps are never filled by falling cells.
 _Avoid_: Burn, cleared row, cascade
 
+**Clearing row**:
+A fully filled row after the piece is placed and before the line clear removes it, shown flashing for a moment.
+_Avoid_: Flashing row, burning row
+
 ## Pieces
 
 **Shape**:
@@ -41,6 +45,10 @@ _Avoid_: Preview, queue
 **Ghost**:
 The preview of the cells the current piece would fill if placed at the pointer's position. A ghost that overlaps filled cells is **blocked**, and the piece cannot be placed there.
 _Avoid_: Highlight, hover, gridset
+
+**Row preview**:
+The rows the ghost would fill completely, highlighted so the player can see a line clear coming.
+_Avoid_: Completed rows
 
 ## Game
 

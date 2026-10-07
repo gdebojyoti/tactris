@@ -4,8 +4,8 @@ import MiniPiece from "./MiniPiece";
 
 const CONTROLS = [
   ["CLICK", "PLACE"],
-  ["WHEEL UP / E", "TURN CW"],
-  ["WHEEL DOWN / Q", "TURN CCW"],
+  ["WHEEL DOWN / E", "TURN CW"],
+  ["WHEEL UP / Q", "TURN CCW"],
 ];
 
 /** Score, lines and best, the current and Next pieces, and the controls when rotation is on. */
