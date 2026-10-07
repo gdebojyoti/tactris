@@ -1,3 +1,4 @@
+import { Moon, Palette, Sun } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { deal } from "../engine/dealer";
 import { apply, ghost, newGame, type Settings } from "../engine/engine";
@@ -86,8 +87,13 @@ export default function Tactris() {
       <header className="flex flex-wrap items-center justify-between gap-4 border-b-4 border-ink px-11 py-4.5">
         <span className="font-pixel text-[32px] font-bold tracking-[0.04em] text-shadow-hard">TACTRIS</span>
         <div className="flex items-center gap-4">
-          <RoundButton label={`Change theme, now ${theme.name}`} onClick={theme.next} />
-          <RoundButton label={`Switch to ${theme.mode === "dark" ? "light" : "dark"} mode`} onClick={theme.toggleMode} />
+          <RoundButton label={`Change theme, now ${theme.name}`} onClick={theme.next}>
+            <Palette size={20} strokeWidth={2.5} aria-hidden />
+          </RoundButton>
+          {/* The icon shows the mode a click switches to, like the label. */}
+          <RoundButton label={`Switch to ${theme.mode === "dark" ? "light" : "dark"} mode`} onClick={theme.toggleMode}>
+            {theme.mode === "dark" ? <Sun size={20} strokeWidth={2.5} aria-hidden /> : <Moon size={20} strokeWidth={2.5} aria-hidden />}
+          </RoundButton>
           <Button onClick={restart}>NEW GAME</Button>
         </div>
       </header>
