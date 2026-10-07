@@ -88,11 +88,11 @@ export default function Tactris() {
         <span className="font-pixel text-[32px] font-bold tracking-[0.04em] text-shadow-hard">TACTRIS</span>
         <div className="flex items-center gap-4">
           <RoundButton label={`Change theme, now ${theme.name}`} onClick={theme.next}>
-            <Palette size={20} strokeWidth={2.5} aria-hidden />
+            <Palette size={30} strokeWidth={2.5} aria-hidden />
           </RoundButton>
           {/* The icon shows the mode a click switches to, like the label. */}
           <RoundButton label={`Switch to ${theme.mode === "dark" ? "light" : "dark"} mode`} onClick={theme.toggleMode}>
-            {theme.mode === "dark" ? <Sun size={20} strokeWidth={2.5} aria-hidden /> : <Moon size={20} strokeWidth={2.5} aria-hidden />}
+            {theme.mode === "dark" ? <Sun size={30} strokeWidth={2.5} aria-hidden /> : <Moon size={30} strokeWidth={2.5} aria-hidden />}
           </RoundButton>
           <Button onClick={restart}>NEW GAME</Button>
         </div>

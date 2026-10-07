@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 
 /**
- * A round icon button in the header: a ring in the page colour, with the NEW GAME button's ink and hard
- * shadow, and the same press into the shadow (see Button). On hover the ring takes the shadow's colour.
- * The label is for screen readers and shows as a tooltip, since the icon has no text.
+ * A round icon button in the header: just the icon, in ink, on a 44px target as tall as NEW GAME. On hover
+ * the icon takes the shadow's colour, and pressed it moves 4px down-right like NEW GAME. The label is for screen readers and shows as a tooltip, since the
+ * icon has no text. Round so the keyboard focus ring is a circle.
  */
 export default function RoundButton({ label, onClick, children }: { label: string; onClick: () => void; children: ReactNode }) {
   return (
@@ -12,7 +12,7 @@ export default function RoundButton({ label, onClick, children }: { label: strin
       aria-label={label}
       title={label}
       onClick={onClick}
-      className="grid size-11 cursor-pointer place-items-center rounded-full border-3 border-ink bg-backlight text-ink shadow-button hover:border-dark [-webkit-tap-highlight-color:transparent] active:translate-x-1 active:translate-y-1 active:shadow-none focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-ink"
+      className="grid size-11 cursor-pointer place-items-center rounded-full text-ink hover:text-dark [-webkit-tap-highlight-color:transparent] active:translate-x-1 active:translate-y-1 focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-ink"
     >
       {children}
     </button>
