@@ -129,7 +129,7 @@ export default function Tactris() {
               )),
             )}
           </div>
-          <div className="flex min-h-[22px] items-center font-pixel text-[15px]">{status && `> ${status}`}</div>
+          <div className="flex h-[22px] items-center font-pixel text-[15px] leading-none">{status && `> ${status}`}</div>
         </section>
 
         <aside aria-label="Game info" className="flex w-[250px] flex-col gap-4">
