@@ -6,12 +6,14 @@ export default {
   entry: "./src/index.ts",
   output: { publicPath: "auto", clean: true },
   devServer: {
-    historyApiFallback: true,
-    // Mirrors the redirect in vercel.json.
+    // Mirrors the routes in vercel.json.
     setupMiddlewares: (middlewares) => [
       (req, res, next) => {
-        if (req.url !== "/") return next();
-        res.writeHead(307, { Location: "/tactris" }).end();
+        const { pathname, search } = new URL(req.url, "http://localhost");
+        if (pathname === "/") return res.writeHead(307, { Location: "/tactris" + search }).end();
+        if (pathname === "/tactris/") return res.writeHead(308, { Location: "/tactris" + search }).end();
+        if (pathname === "/tactris") req.url = "/index.html";
+        next();
       },
       ...middlewares,
     ],
@@ -47,6 +49,6 @@ export default {
         "react-dom": { singleton: true, requiredVersion: pkg.dependencies["react-dom"] },
       },
     }),
-    new HtmlWebpackPlugin({ template: "./src/index.html", chunks: ["main"], publicPath: "/" }),
+    new HtmlWebpackPlugin({ template: "./src/index.html", chunks: ["main"] }),
   ],
 };
