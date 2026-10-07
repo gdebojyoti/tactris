@@ -197,3 +197,55 @@ test("a Piece that only fits once the full rows are cleared doesn't end the game
   );
   expect(game.gameOver).toBe(false);
 });
+
+test("a Piece taller than the Board gives a blocked Ghost, clipped to the Board, and can't be placed", () => {
+  const game = newGame(settings({ width: 4, height: 3 }), piece("I", 1), piece("O"));
+  expect(ghost(game, 1, 1)).toEqual({ cells: [[0, 1], [1, 1], [2, 1]], blocked: true });
+  expect(play(game, { type: "place", row: 1, col: 1 })).toEqual(game);
+});
+
+test("a Piece wider than the Board gives a blocked Ghost, clipped to the Board, and can't be placed", () => {
+  const game = newGame(settings({ width: 3, height: 10 }), piece("I"), piece("O"));
+  expect(ghost(game, 0, 1)).toEqual({ cells: [[0, 0], [0, 1], [0, 2]], blocked: true });
+  expect(play(game, { type: "place", row: 0, col: 1 })).toEqual(game);
+});
+
+test("a new game is already over when its first Piece fits nowhere", () => {
+  const game = newGame(settings({ width: 3, height: 10, allowRotation: false }), piece("I"), piece("O"));
+  expect(game.gameOver).toBe(true);
+});
+
+test("receiving a Piece while a Next piece is already waiting keeps the waiting one", () => {
+  const game = play(
+    newGame(settings(), piece("T"), piece("O")),
+    { type: "place", row: 5, col: 5 },
+    { type: "receive", piece: piece("L") },
+    { type: "receive", piece: piece("S") },
+  );
+  expect(game.next).toEqual(piece("L"));
+});
+
+test("after Game over, no action changes the game", () => {
+  const over = play(newGame(settings({ width: 4, height: 3 }), piece("T"), piece("O")), {
+    type: "place",
+    row: 0,
+    col: 1,
+  });
+  expect(over.gameOver).toBe(true);
+  const actions: Action[] = [
+    { type: "receive", piece: piece("I") },
+    { type: "rotate", direction: "cw" },
+    { type: "clear" },
+    { type: "place", row: 2, col: 1 },
+  ];
+  for (const action of actions) expect(play(over, action)).toEqual(over);
+});
+
+test("a Piece rotated next to an edge is pushed back inside the Board", () => {
+  const game = play(
+    newGame(settings({ width: 5, height: 4 }), piece("T"), piece("O")),
+    { type: "rotate", direction: "cw" },
+    { type: "place", row: 0, col: 4 },
+  );
+  expect(board(game)).toEqual(["...#.", "...##", "...#.", "....."]);
+});

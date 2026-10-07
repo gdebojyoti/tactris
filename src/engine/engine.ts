@@ -57,28 +57,38 @@ export type Action =
 
 export function newGame(settings: Settings, current: Piece, next: Piece): Game {
   const cells = Array.from({ length: settings.height }, () => Array<boolean>(settings.width).fill(false));
-  return { settings, cells, current, next, score: 0, clearing: [], gameOver: false };
+  const game = { settings, cells, current, next, score: 0, clearing: [], gameOver: false };
+  return { ...game, gameOver: !fitsAnywhere(game) };
 }
 
-/** The Ghost with the pointer on (row, col): the Cells the current Piece would fill, and whether any is already filled. */
+/** The Cells a Piece's rows cover with their top-left corner on (top, left). */
+const cellsAt = (rows: string[], top: number, left: number): [number, number][] =>
+  rows.flatMap((line, r) =>
+    [...line].flatMap((mark, c): [number, number][] => (mark === "#" ? [[top + r, left + c]] : [])),
+  );
+
+/** Whether every Cell is on the Board and empty. */
+const isFree = (game: Game, cells: [number, number][]) =>
+  cells.every(([r, c]) => r < game.settings.height && c < game.settings.width && !game.cells[r][c]);
+
+/**
+ * The Ghost with the pointer on (row, col): the Board Cells the current Piece would fill, and whether
+ * it's blocked. A Piece bigger than the Board is always blocked, and its Ghost is clipped to the Board.
+ */
 export function ghost(game: Game, row: number, col: number) {
-  const cells = ghostCells(game, row, col);
-  return { cells, blocked: cells.some(([r, c]) => game.cells[r][c]) };
-}
-
-function ghostCells(game: Game, row: number, col: number): [number, number][] {
   const rows = pieceCells(game.current);
   const { width, height } = game.settings;
   const clamp = (value: number, max: number) => Math.max(0, Math.min(value, max));
   const top = clamp(row - Math.floor((rows.length - 1) / 2), height - rows.length);
   const left = clamp(col - Math.floor((rows[0].length - 1) / 2), width - rows[0].length);
-  return rows.flatMap((line, r) =>
-    [...line].flatMap((mark, c): [number, number][] => (mark === "#" ? [[top + r, left + c]] : [])),
-  );
+  const cells = cellsAt(rows, top, left);
+  return { cells: cells.filter(([r, c]) => r < height && c < width), blocked: !isFree(game, cells) };
 }
 
 export function apply(game: Game, action: Action): Game {
-  if (action.type === "receive") return { ...game, next: action.piece };
+  if (game.gameOver) return game;
+  // A waiting Next piece is never replaced, so a repeated delivery can't drop a Piece the player has seen.
+  if (action.type === "receive") return game.next ? game : { ...game, next: action.piece };
   if (action.type === "rotate") {
     if (!game.settings.allowRotation) return game;
     const { shape, orientation } = game.current;
@@ -117,8 +127,7 @@ function fitsAnywhere(game: Game): boolean {
 function fits(game: Game, rows: string[]): boolean {
   for (let top = 0; top + rows.length <= game.settings.height; top++) {
     for (let left = 0; left + rows[0].length <= game.settings.width; left++) {
-      const free = rows.every((line, r) => [...line].every((mark, c) => mark !== "#" || !game.cells[top + r][left + c]));
-      if (free) return true;
+      if (isFree(game, cellsAt(rows, top, left))) return true;
     }
   }
   return false;
