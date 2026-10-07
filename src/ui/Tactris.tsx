@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { deal } from "../engine/dealer";
-import { apply, ghost, newGame, type Settings } from "../engine/engine";
+import { apply, ghost, newGame, pieceCells, type Piece, type Settings } from "../engine/engine";
 import "./tactris.css";
 
 const SETTINGS: Settings = { allowRotation: true, width: 10, height: 10 };
@@ -8,6 +8,23 @@ const FLASH_MS = 200;
 // About half a mouse-wheel click (100px in most browsers), so every click turns once.
 const WHEEL_STEP = 50;
 const WHEEL_COOLDOWN_MS = 150;
+
+// Storage can be missing or blocked (private windows, blocked site data), so the best score is optional.
+const BEST_KEY = "tactris.best";
+const loadBest = () => {
+  try {
+    return Number(localStorage.getItem(BEST_KEY)) || 0;
+  } catch {
+    return 0;
+  }
+};
+const saveBest = (score: number) => {
+  try {
+    localStorage.setItem(BEST_KEY, String(score));
+  } catch {
+    // Not saved; the best score still shows for this visit.
+  }
+};
 
 const startGame = () => newGame(SETTINGS, deal(SETTINGS), deal(SETTINGS));
 
@@ -22,6 +39,14 @@ export default function Tactris() {
     const timer = setTimeout(() => setGame((g) => apply(g, { type: "clear" })), FLASH_MS);
     return () => clearTimeout(timer);
   }, [game]);
+
+  // The best score updates, and is saved, the moment the score passes it.
+  const [best, setBest] = useState(loadBest);
+  useEffect(() => {
+    if (game.score <= best) return;
+    setBest(game.score);
+    saveBest(game.score);
+  }, [game.score, best]);
 
   const rotate = (direction: "cw" | "ccw") => setGame((g) => apply(g, { type: "rotate", direction }));
 
@@ -116,15 +141,15 @@ export default function Tactris() {
               <span className="text-right text-[28px] leading-none font-bold">{game.lines}</span>
             </Box>
             <Box label="BEST" half>
-              <span className="text-right text-[28px] leading-none font-bold">0</span>
+              <span className="text-right text-[28px] leading-none font-bold">{best}</span>
             </Box>
           </div>
           <div className="flex gap-4">
             <Box label="NOW" half>
-              <div className="h-[46px]" />
+              <MiniPiece piece={game.current} />
             </Box>
             <Box label="NEXT" half>
-              <div className="h-[46px]" />
+              <MiniPiece piece={game.next} />
             </Box>
           </div>
           {SETTINGS.allowRotation && (
@@ -143,6 +168,20 @@ export default function Tactris() {
           )}
         </aside>
       </main>
+    </div>
+  );
+}
+
+/** A Piece in mini-cells, centred in an area tall and wide enough for any Orientation (4 × 18px + gaps). */
+function MiniPiece({ piece }: { piece: Piece | null }) {
+  const rows = piece ? pieceCells(piece) : [];
+  return (
+    <div className="flex h-[78px] items-center justify-center">
+      <div className="grid gap-0.5" style={{ gridTemplateColumns: `repeat(${rows[0]?.length ?? 0}, 18px)` }}>
+        {rows.flatMap((line, r) =>
+          [...line].map((mark, c) => <div key={`${r},${c}`} className={mark === "#" ? "size-[18px] cell-filled" : "size-[18px]"} />),
+        )}
+      </div>
     </div>
   );
 }
