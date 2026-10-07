@@ -5,6 +5,19 @@ import pkg from "./package.json" with { type: "json" };
 export default {
   entry: "./src/index.ts",
   output: { publicPath: "auto", clean: true },
+  devServer: {
+    // Mirrors the routes in vercel.json.
+    setupMiddlewares: (middlewares) => [
+      (req, res, next) => {
+        const { pathname, search } = new URL(req.url, "http://localhost");
+        if (pathname === "/") return res.writeHead(307, { Location: "/tactris" + search }).end();
+        if (pathname === "/tactris/") return res.writeHead(308, { Location: "/tactris" + search }).end();
+        if (pathname === "/tactris") req.url = "/index.html";
+        next();
+      },
+      ...middlewares,
+    ],
+  },
   resolve: { extensions: [".ts", ".tsx", ".js"] },
   module: {
     rules: [
