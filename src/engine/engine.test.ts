@@ -270,3 +270,13 @@ test("a valid Ghost lists the rows it would complete; a blocked one lists none",
   expect(ghost(game, 3, 2).completes).toEqual([]); // valid, completes nothing
   expect(ghost(game, 0, 1).completes).toEqual([]); // blocked
 });
+
+test("a Piece can't be rotated while rows are waiting to clear", () => {
+  const game = play(
+    newGame(settings({ width: 4, height: 3 }), piece("I"), piece("T")),
+    { type: "place", row: 2, col: 1 },
+    { type: "receive", piece: piece("O") },
+  );
+  expect(game.clearing).toEqual([2]);
+  expect(play(game, { type: "rotate", direction: "cw" })).toBe(game);
+});

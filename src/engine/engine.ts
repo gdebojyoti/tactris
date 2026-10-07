@@ -99,7 +99,7 @@ export function apply(game: Game, action: Action): Game {
   // A waiting Next piece is never replaced, so a repeated delivery can't drop a Piece the player has seen.
   if (action.type === "receive") return game.next ? game : { ...game, next: action.piece };
   if (action.type === "rotate") {
-    if (!game.settings.allowRotation) return game;
+    if (!game.settings.allowRotation || game.clearing.length) return game;
     const { shape, orientation } = game.current;
     const count = orientationCount(shape);
     const turned = (orientation + (action.direction === "cw" ? 1 : count - 1)) % count;
