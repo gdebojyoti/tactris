@@ -34,14 +34,8 @@ const writeCookie = (name: string, value: string) => {
 const THEME_COOKIE = "tactris-theme";
 const MODE_COOKIE = "tactris-mode";
 const loadTheme = (): Theme => THEMES.find((theme) => theme.id === readCookie(THEME_COOKIE)) ?? THEMES[0];
-const loadMode = (): Mode | null => {
-  const saved = readCookie(MODE_COOKIE);
-  return saved === "light" || saved === "dark" ? saved : null;
-};
-
-// Until the player picks a mode, the game follows the device's light or dark setting, even as it changes.
-const DARK_QUERY = "(prefers-color-scheme: dark)";
-const deviceMode = (): Mode => (window.matchMedia?.(DARK_QUERY).matches ? "dark" : "light");
+// Light until the player picks dark, whatever the device's own light or dark setting.
+const loadMode = (): Mode => (readCookie(MODE_COOKIE) === "dark" ? "dark" : "light");
 
 /**
  * The current colour theme and mode, for data-theme and data-mode on the game's root, with `next` to
@@ -50,15 +44,7 @@ const deviceMode = (): Mode => (window.matchMedia?.(DARK_QUERY).matches ? "dark"
  */
 export default function useTheme(root: RefObject<HTMLElement | null>) {
   const [theme, setTheme] = useState(loadTheme);
-  const [chosenMode, setChosenMode] = useState(loadMode);
-  const [device, setDevice] = useState(deviceMode);
-  useEffect(() => {
-    const query = window.matchMedia?.(DARK_QUERY);
-    const onChange = () => setDevice(deviceMode());
-    query?.addEventListener("change", onChange);
-    return () => query?.removeEventListener("change", onChange);
-  }, []);
-  const mode = chosenMode ?? device;
+  const [mode, setMode] = useState(loadMode);
 
   useEffect(() => {
     const backlight = getComputedStyle(root.current!).getPropertyValue("--backlight").trim();
@@ -72,7 +58,7 @@ export default function useTheme(root: RefObject<HTMLElement | null>) {
   };
   const toggleMode = () => {
     const other = mode === "dark" ? "light" : "dark";
-    setChosenMode(other);
+    setMode(other);
     writeCookie(MODE_COOKIE, other);
   };
   return { id: theme.id, name: theme.name, next, mode, toggleMode };
