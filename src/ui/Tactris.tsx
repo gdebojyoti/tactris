@@ -33,6 +33,15 @@ export default function Tactris() {
   const [game, setGame] = useState(startGame);
   // The Cell under the pointer, or null when the pointer is off the Board.
   const [pointer, setPointer] = useState<[number, number] | null>(null);
+  // Where the mouse was when the last Piece was placed. Until it moves from there, or the player turns
+  // the Piece, the Ghost is hidden and clicks don't place: otherwise the new Piece shows blocked on top
+  // of the one just placed. Compared by position, since browsers also fire mousemove when the page
+  // changes under a still mouse (a line clear).
+  const [placedAt, setPlacedAt] = useState<{ x: number; y: number } | null>(null);
+  const onMove = useCallback(
+    (at: { x: number; y: number }) => setPlacedAt((p) => (p && (p.x !== at.x || p.y !== at.y) ? null : p)),
+    [],
+  );
 
   // Full rows flash for a moment, then clear.
   useEffect(() => {
@@ -56,7 +65,10 @@ export default function Tactris() {
     setBestBefore(best);
   };
 
-  const rotate = useCallback((direction: "cw" | "ccw") => setGame((g) => apply(g, { type: "rotate", direction })), []);
+  const rotate = useCallback((direction: "cw" | "ccw") => {
+    setGame((g) => apply(g, { type: "rotate", direction }));
+    setPlacedAt(null);
+  }, []);
 
   // E turns clockwise and Q counter-clockwise, anywhere on the page.
   useEffect(() => {
@@ -71,13 +83,15 @@ export default function Tactris() {
     return () => window.removeEventListener("keydown", onKey);
   }, [rotate]);
 
-  const place = (row: number, col: number) =>
-    setGame((g) => {
-      const placed = apply(g, { type: "place", row, col });
-      return placed === g ? g : apply(placed, { type: "receive", piece: deal(SETTINGS) });
-    });
+  const place = (row: number, col: number, at: { x: number; y: number }) => {
+    if (placedAt) return;
+    const placed = apply(game, { type: "place", row, col });
+    if (placed === game) return;
+    setGame(apply(placed, { type: "receive", piece: deal(SETTINGS) }));
+    setPlacedAt(at);
+  };
 
-  const shown = pointer && !game.clearing.length && !game.gameOver ? ghost(game, ...pointer) : null;
+  const shown = pointer && !placedAt && !game.clearing.length && !game.gameOver ? ghost(game, ...pointer) : null;
   const lines = shown?.completes.length ?? 0;
   const status = game.gameOver
     ? "NO MOVES LEFT"
@@ -98,7 +112,7 @@ export default function Tactris() {
         {/* The status line hangs below the Board, out of the flow, so the Sidebar centres on the Board alone. */}
         <section aria-label="Board" className="relative w-[min(560px,100%,calc(100vh-200px))]">
           <div className="relative">
-            <Board game={game} ghost={shown} onPointer={setPointer} onPlace={place} onRotate={rotate} />
+            <Board game={game} ghost={shown} onPointer={setPointer} onMove={onMove} onPlace={place} onRotate={rotate} />
             {game.gameOver && (
               <GameOver score={game.score} best={best} newBest={game.score > bestBefore} onPlayAgain={restart} />
             )}

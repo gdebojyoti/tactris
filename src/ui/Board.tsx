@@ -7,16 +7,18 @@ const WHEEL_COOLDOWN_MS = 150;
 
 type Props = {
   game: Game;
-  /** The Ghost to draw, or null when there's none (pointer off the Board, rows clearing, Game over). */
+  /** The Ghost to draw, or null when there's none (pointer off the Board or not moved since placing, rows clearing, Game over). */
   ghost: ReturnType<typeof ghostOf> | null;
   onPointer: (cell: [number, number] | null) => void;
-  onPlace: (row: number, col: number) => void;
+  /** Where the mouse is, in client coordinates, every time it moves over the Board. */
+  onMove: (at: { x: number; y: number }) => void;
+  onPlace: (row: number, col: number, at: { x: number; y: number }) => void;
   /** Must keep the same identity across renders, or the wheel listener resets its distance and cooldown. */
   onRotate: (direction: "cw" | "ccw") => void;
 };
 
 /** The rectangular playing area made of Cells, with the Ghost, row preview and flash drawn over them. */
-export default function Board({ game, ghost, onPointer, onPlace, onRotate }: Props) {
+export default function Board({ game, ghost, onPointer, onMove, onPlace, onRotate }: Props) {
   // The wheel over the Board turns the Piece instead of scrolling the page: down is clockwise. Attached
   // directly so it can call preventDefault, which React's passive wheel handler can't. A trackpad sends
   // many small deltas, so they add up to about one wheel click, with at most one turn per cooldown.
@@ -55,6 +57,7 @@ export default function Board({ game, ghost, onPointer, onPlace, onRotate }: Pro
       className="grid gap-0.5 border-[6px] border-ink bg-light p-2.5 shadow-board"
       style={{ gridTemplateColumns: `repeat(${width}, minmax(0, 1fr))` }}
       onMouseLeave={() => onPointer(null)}
+      onMouseMove={(event) => onMove({ x: event.clientX, y: event.clientY })}
     >
       {game.cells.flatMap((row, r) =>
         row.map((_, c) => (
@@ -62,7 +65,7 @@ export default function Board({ game, ghost, onPointer, onPlace, onRotate }: Pro
             key={`${r},${c}`}
             className={cellClass(r, c)}
             onMouseEnter={() => onPointer([r, c])}
-            onClick={() => onPlace(r, c)}
+            onClick={(event) => onPlace(r, c, { x: event.clientX, y: event.clientY })}
           />
         )),
       )}
