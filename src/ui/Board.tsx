@@ -17,7 +17,7 @@ type Props = {
 
 /** The rectangular playing area made of Cells, with the Ghost, row preview and flash drawn over them. */
 export default function Board({ game, ghost, onPointer, onPlace, onRotate }: Props) {
-  // The wheel over the Board turns the Piece instead of scrolling the page: up is clockwise. Attached
+  // The wheel over the Board turns the Piece instead of scrolling the page: down is clockwise. Attached
   // directly so it can call preventDefault, which React's passive wheel handler can't. A trackpad sends
   // many small deltas, so they add up to about one wheel click, with at most one turn per cooldown.
   const boardRef = useRef<HTMLDivElement>(null);
@@ -32,7 +32,7 @@ export default function Board({ game, ghost, onPointer, onPlace, onRotate }: Pro
       if (event.timeStamp - lastTurn < WHEEL_COOLDOWN_MS) return void (distance = 0);
       distance += event.deltaMode === WheelEvent.DOM_DELTA_LINE ? event.deltaY * 40 : event.deltaY;
       if (Math.abs(distance) < WHEEL_STEP) return;
-      onRotate(distance < 0 ? "cw" : "ccw");
+      onRotate(distance > 0 ? "cw" : "ccw");
       distance = 0;
       lastTurn = event.timeStamp;
     };
