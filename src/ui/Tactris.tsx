@@ -1,9 +1,10 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { deal } from "../engine/dealer";
-import { ghost, newGame, type Settings } from "../engine/engine";
+import { apply, ghost, newGame, type Settings } from "../engine/engine";
 import "./tactris.css";
 
 const SETTINGS: Settings = { allowRotation: true, width: 10, height: 10 };
+const FLASH_MS = 200;
 
 const startGame = () => newGame(SETTINGS, deal(SETTINGS), deal(SETTINGS));
 
@@ -12,12 +13,26 @@ export default function Tactris() {
   // The Cell under the pointer, or null when the pointer is off the Board.
   const [pointer, setPointer] = useState<[number, number] | null>(null);
 
+  // Full rows flash for a moment, then clear.
+  useEffect(() => {
+    if (!game.clearing.length) return;
+    const timer = setTimeout(() => setGame((g) => apply(g, { type: "clear" })), FLASH_MS);
+    return () => clearTimeout(timer);
+  }, [game]);
+
+  const place = (row: number, col: number) =>
+    setGame((g) => {
+      const placed = apply(g, { type: "place", row, col });
+      return placed === g ? g : apply(placed, { type: "receive", piece: deal(SETTINGS) });
+    });
+
   const shown = pointer && !game.clearing.length && !game.gameOver ? ghost(game, ...pointer) : null;
   const inGhost = new Set(shown?.cells.map(([r, c]) => `${r},${c}`));
   const cellClass = (r: number, c: number) => {
     const classes = ["cell", game.cells[r][c] ? "cell-filled" : "cell-empty"];
     if (inGhost.has(`${r},${c}`)) classes.push(shown!.blocked ? "cell-ghost-blocked" : "cell-ghost");
     if (shown?.completes.includes(r)) classes.push("cell-preview");
+    if (game.clearing.includes(r)) classes.push("cell-flash");
     return classes.join(" ");
   };
   const lines = shown?.completes.length ?? 0;
@@ -41,7 +56,12 @@ export default function Tactris() {
           >
             {game.cells.flatMap((row, r) =>
               row.map((_, c) => (
-                <div key={`${r},${c}`} className={cellClass(r, c)} onMouseEnter={() => setPointer([r, c])} />
+                <div
+                  key={`${r},${c}`}
+                  className={cellClass(r, c)}
+                  onMouseEnter={() => setPointer([r, c])}
+                  onClick={() => place(r, c)}
+                />
               )),
             )}
           </div>

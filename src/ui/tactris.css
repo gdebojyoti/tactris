@@ -112,6 +112,15 @@
       inset 0 0 0 8px var(--light),
       inset 0 0 0 11px var(--dark);
   }
+  /* A full row just before it clears: the opposite of the preview, "lit up". */
+  .cell-flash {
+    background: var(--ink);
+    border: 3px solid var(--ink);
+    box-shadow:
+      inset 0 0 0 3px var(--backlight),
+      inset 0 0 0 6px var(--ink),
+      inset 0 0 0 9px var(--backlight);
+  }
 
   .box {
     display: flex;
