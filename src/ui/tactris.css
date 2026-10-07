@@ -68,9 +68,49 @@
   .cell {
     aspect-ratio: 1;
   }
+  /* Later states override earlier ones: a Cell can be filled, in the Ghost and in a previewed row at once. */
   .cell-empty {
     background: var(--backlight);
     box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 12%, transparent);
+  }
+  .cell-filled {
+    background: var(--dark);
+    border: 3px solid var(--ink);
+    box-shadow: inset 3px 3px 0 var(--light);
+  }
+  .cell-ghost {
+    background: var(--backlight);
+    border: 3px dashed var(--ink);
+    box-shadow:
+      inset 0 0 0 3px var(--backlight),
+      inset 0 0 0 7px var(--dark);
+  }
+  /* Blocked Ghost over an empty Cell: red cross-hatch. */
+  .cell-ghost-blocked {
+    background:
+      repeating-linear-gradient(45deg, var(--error) 0 2px, transparent 2px 4px),
+      repeating-linear-gradient(-45deg, var(--error) 0 2px, transparent 2px 4px),
+      var(--backlight);
+    border: 3px solid var(--error);
+    box-shadow: none;
+  }
+  /* Blocked Ghost over a filled Cell: red with light stripes. */
+  .cell-filled.cell-ghost-blocked {
+    background:
+      repeating-linear-gradient(45deg, var(--backlight) 0 2px, transparent 2px 5px),
+      var(--error);
+  }
+  .cell-preview {
+    background: var(--light);
+    border: 3px solid var(--ink);
+    box-shadow: inset 0 0 0 4px var(--ink);
+  }
+  .cell-preview.cell-ghost {
+    border-style: dashed;
+    box-shadow:
+      inset 0 0 0 4px var(--ink),
+      inset 0 0 0 8px var(--light),
+      inset 0 0 0 11px var(--dark);
   }
 
   .box {
