@@ -15,7 +15,7 @@ type Props = {
   onRotate: (direction: "cw" | "ccw") => void;
 };
 
-/** The grid of Cells, with the Ghost, row preview and flash drawn over them. */
+/** The rectangular playing area made of Cells, with the Ghost, row preview and flash drawn over them. */
 export default function Board({ game, ghost, onPointer, onPlace, onRotate }: Props) {
   // The wheel over the Board turns the Piece instead of scrolling the page: up is clockwise. Attached
   // directly so it can call preventDefault, which React's passive wheel handler can't. A trackpad sends
