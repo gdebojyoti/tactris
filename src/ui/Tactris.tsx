@@ -62,6 +62,8 @@ export default function Tactris() {
   useEffect(() => {
     if (!SETTINGS.allowRotation) return;
     const onKey = (event: KeyboardEvent) => {
+      // Leave browser and system shortcuts (Ctrl+E, Cmd+Q, ...) alone.
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
       const key = event.key.toLowerCase();
       if (key === "e" || key === "q") rotate(key === "e" ? "cw" : "ccw");
     };
