@@ -5,7 +5,7 @@ import Board from "./Board";
 import Button from "./Button";
 import GameOver from "./GameOver";
 import Sidebar from "./Sidebar";
-import ThemeButton from "./ThemeButton";
+import RoundButton from "./RoundButton";
 import useBest from "./useBest";
 import useTheme from "./useTheme";
 import "./tactris.css";
@@ -82,11 +82,12 @@ export default function Tactris() {
         : "";
 
   return (
-    <div ref={rootRef} data-theme={theme.id} className="tactris flex min-h-screen flex-col font-pixel-body text-ink">
+    <div ref={rootRef} data-theme={theme.id} data-mode={theme.mode} className="tactris flex min-h-screen flex-col font-pixel-body text-ink">
       <header className="flex flex-wrap items-center justify-between gap-4 border-b-4 border-ink px-11 py-4.5">
         <span className="font-pixel text-[32px] font-bold tracking-[0.04em] text-shadow-hard">TACTRIS</span>
         <div className="flex items-center gap-4">
-          <ThemeButton theme={theme.name} onClick={theme.next} />
+          <RoundButton label={`Change theme, now ${theme.name}`} onClick={theme.next} />
+          <RoundButton label={`Switch to ${theme.mode === "dark" ? "light" : "dark"} mode`} onClick={theme.toggleMode} />
           <Button onClick={restart}>NEW GAME</Button>
         </div>
       </header>

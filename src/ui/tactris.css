@@ -60,6 +60,42 @@
   --backlight: #f7c6df;
 }
 
+/*
+ * Dark modes, picked with data-mode="dark". Inverted: ink is the light colour and backlight the dark one,
+ * and the roles keep their meaning. Classic's is the design's Night theme; the others keep their theme's
+ * hue at Night's lightness, so each is a first pick to tune by eye. The classic red stays for error.
+ */
+.tactris[data-theme="classic"][data-mode="dark"] {
+  --ink: #a6f08e;
+  --dark: #3f8a4a;
+  --light: #1d3322;
+  --backlight: #0f1a12;
+}
+.tactris[data-theme="amber"][data-mode="dark"] {
+  --ink: #ffbd7f;
+  --dark: #c66703;
+  --light: #322a1e;
+  --backlight: #1a160f;
+}
+.tactris[data-theme="ice-blue"][data-mode="dark"] {
+  --ink: #85b4f9;
+  --dark: #2b629e;
+  --light: #1f2a31;
+  --backlight: #101619;
+}
+.tactris[data-theme="greyscale"][data-mode="dark"] {
+  --ink: #bfbfbf;
+  --dark: #656565;
+  --light: #292927;
+  --backlight: #151514;
+}
+.tactris[data-theme="berry"][data-mode="dark"] {
+  --ink: #f18dd4;
+  --dark: #963372;
+  --light: #302029;
+  --backlight: #191015;
+}
+
 /* Patterns and layered states that utilities can't express cleanly. */
 @layer components {
   /* LCD pixel texture over the backlight. */

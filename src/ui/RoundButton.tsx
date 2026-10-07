@@ -1,10 +1,9 @@
 /**
- * The round button that switches to the next colour theme: an empty ring in the page colour, with the
- * NEW GAME button's ink and hard shadow, and the same press into the shadow (see Button). On hover the
- * ring takes the shadow's colour.
+ * A round button in the header: an empty ring in the page colour, with the NEW GAME button's ink and hard
+ * shadow, and the same press into the shadow (see Button). On hover the ring takes the shadow's colour.
+ * The label is for screen readers and shows as a tooltip, since the ring itself says nothing.
  */
-export default function ThemeButton({ theme, onClick }: { theme: string; onClick: () => void }) {
-  const label = `Change theme, now ${theme}`;
+export default function RoundButton({ label, onClick }: { label: string; onClick: () => void }) {
   return (
     <button
       type="button"

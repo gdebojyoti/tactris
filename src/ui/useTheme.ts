@@ -1,6 +1,7 @@
 import { useEffect, useState, type RefObject } from "react";
 
-// The colour themes, in the order the theme button cycles through them. The colours are in tactris.css.
+// The colour themes, in the order the theme button cycles through them. Each has a light and a dark mode;
+// the colours are in tactris.css.
 const THEMES = [
   { id: "classic", name: "Classic" },
   { id: "amber", name: "Amber" },
@@ -9,44 +10,70 @@ const THEMES = [
   { id: "berry", name: "Berry" },
 ] as const;
 type Theme = (typeof THEMES)[number];
+type Mode = "light" | "dark";
 
-// The chosen theme is kept in a cookie for a year. Cookies can be blocked too (sandboxed frames), and an
-// unknown value falls back to Classic.
-const COOKIE = "tactris-theme";
-const load = (): Theme => {
+// The theme and mode are each kept in a cookie for a year. Cookies can be blocked too (sandboxed frames),
+// and a missing or unknown value is ignored.
+const readCookie = (name: string) => {
   try {
-    const saved = document.cookie
+    return document.cookie
       .split("; ")
-      .find((cookie) => cookie.startsWith(`${COOKIE}=`))
-      ?.slice(COOKIE.length + 1);
-    return THEMES.find((theme) => theme.id === saved) ?? THEMES[0];
+      .find((cookie) => cookie.startsWith(`${name}=`))
+      ?.slice(name.length + 1);
   } catch {
-    return THEMES[0];
+    return undefined;
   }
 };
-const save = (theme: Theme) => {
+const writeCookie = (name: string, value: string) => {
   try {
-    document.cookie = `${COOKIE}=${theme.id}; path=/; max-age=31536000; SameSite=Lax`;
+    document.cookie = `${name}=${value}; path=/; max-age=31536000; SameSite=Lax`;
   } catch {
-    // Not saved; the theme still applies for this visit.
+    // Not saved; the choice still applies for this visit.
   }
 };
+const THEME_COOKIE = "tactris-theme";
+const MODE_COOKIE = "tactris-mode";
+const loadTheme = (): Theme => THEMES.find((theme) => theme.id === readCookie(THEME_COOKIE)) ?? THEMES[0];
+const loadMode = (): Mode | null => {
+  const saved = readCookie(MODE_COOKIE);
+  return saved === "light" || saved === "dark" ? saved : null;
+};
+
+// Until the player picks a mode, the game follows the device's light or dark setting, even as it changes.
+const DARK_QUERY = "(prefers-color-scheme: dark)";
+const deviceMode = (): Mode => (window.matchMedia?.(DARK_QUERY).matches ? "dark" : "light");
 
 /**
- * The current colour theme, for data-theme on the game's root, and `next` to switch to the following one.
- * The browser's address bar takes the theme's page colour, read from the root's CSS so it's defined once.
+ * The current colour theme and mode, for data-theme and data-mode on the game's root, with `next` to
+ * switch to the following theme and `toggleMode` to swap light and dark. The browser's address bar takes
+ * the page colour, read from the root's CSS so it's defined once.
  */
 export default function useTheme(root: RefObject<HTMLElement | null>) {
-  const [theme, setTheme] = useState(load);
+  const [theme, setTheme] = useState(loadTheme);
+  const [chosenMode, setChosenMode] = useState(loadMode);
+  const [device, setDevice] = useState(deviceMode);
+  useEffect(() => {
+    const query = window.matchMedia?.(DARK_QUERY);
+    const onChange = () => setDevice(deviceMode());
+    query?.addEventListener("change", onChange);
+    return () => query?.removeEventListener("change", onChange);
+  }, []);
+  const mode = chosenMode ?? device;
+
   useEffect(() => {
     const backlight = getComputedStyle(root.current!).getPropertyValue("--backlight").trim();
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", backlight);
-  }, [root, theme]);
+  }, [root, theme, mode]);
 
   const next = () => {
     const following = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length];
     setTheme(following);
-    save(following);
+    writeCookie(THEME_COOKIE, following.id);
   };
-  return { id: theme.id, name: theme.name, next };
+  const toggleMode = () => {
+    const other = mode === "dark" ? "light" : "dark";
+    setChosenMode(other);
+    writeCookie(MODE_COOKIE, other);
+  };
+  return { id: theme.id, name: theme.name, next, mode, toggleMode };
 }
