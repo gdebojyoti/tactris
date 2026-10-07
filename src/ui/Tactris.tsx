@@ -1,4 +1,3 @@
-import { Moon, Palette, Sun } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { deal } from "../engine/dealer";
 import { apply, ghost, newGame, type Settings } from "../engine/engine";
@@ -6,6 +5,7 @@ import Board from "./Board";
 import Button from "./Button";
 import GameOver from "./GameOver";
 import Sidebar from "./Sidebar";
+import PixelIcon from "./PixelIcon";
 import RoundButton from "./RoundButton";
 import useBest from "./useBest";
 import useTheme from "./useTheme";
@@ -88,11 +88,11 @@ export default function Tactris() {
         <span className="font-pixel text-[32px] font-bold tracking-[0.04em] text-shadow-hard">TACTRIS</span>
         <div className="flex items-center gap-4">
           <RoundButton label={`Change theme, now ${theme.name}`} onClick={theme.next}>
-            <Palette size={30} strokeWidth={2.5} aria-hidden />
+            <PixelIcon name="palette" />
           </RoundButton>
           {/* The icon shows the mode a click switches to, like the label. */}
           <RoundButton label={`Switch to ${theme.mode === "dark" ? "light" : "dark"} mode`} onClick={theme.toggleMode}>
-            {theme.mode === "dark" ? <Sun size={30} strokeWidth={2.5} aria-hidden /> : <Moon size={30} strokeWidth={2.5} aria-hidden />}
+            <PixelIcon name={theme.mode === "dark" ? "sun" : "moon"} />
           </RoundButton>
           <Button onClick={restart}>NEW GAME</Button>
         </div>
