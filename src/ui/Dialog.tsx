@@ -3,19 +3,17 @@ import type { ReactNode } from "react";
 type Props = {
   label: string;
   /** Mobile: the Board is too small to hold the panel, so the whole screen is dimmed instead. */
-  fullScreen?: boolean;
-  /** Tapping the dimmed area outside the panel. */
-  onDismiss?: () => void;
+  fullScreen: boolean;
   children: ReactNode;
 };
 
-/** A panel over a dimmed Board, or the whole dimmed screen: Game over and the mobile settings. */
-export default function Dialog({ label, fullScreen, onDismiss, children }: Props) {
+/**
+ * A panel over a dimmed Board, or the whole dimmed screen: Game over and the mobile settings. Tapping the
+ * dim does nothing; each panel has its own button to leave it.
+ */
+export default function Dialog({ label, fullScreen, children }: Props) {
   return (
-    <div
-      className={`dialog-dim flex items-center justify-center ${fullScreen ? "fixed inset-0 z-10 p-4" : "absolute inset-1.5 p-6"}`}
-      onClick={onDismiss && ((event) => event.target === event.currentTarget && onDismiss())}
-    >
+    <div className={`dialog-dim flex items-center justify-center ${fullScreen ? "fixed inset-0 z-10 p-4" : "absolute inset-1.5 p-6"}`}>
       <div
         role="dialog"
         aria-label={label}

@@ -8,7 +8,7 @@ type Props = {
   newBest: boolean;
   onPlayAgain: () => void;
   /** Mobile: the whole screen is dimmed, not just the Board. */
-  fullScreen?: boolean;
+  fullScreen: boolean;
 };
 
 /** Over the dimmed Board: the final score and best, NEW BEST! when it was beaten, and PLAY AGAIN. */
