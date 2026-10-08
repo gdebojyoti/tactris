@@ -23,7 +23,10 @@ const LAYOUTS = {
 type Props = {
   theme: ReturnType<typeof useTheme>;
   onNewGame: () => void;
-  /** Mobile: the settings button opens the settings menu, in place of the theme and mode buttons. */
+  /**
+   * Mobile: the settings button opens the settings menu, in place of the theme and mode buttons. Always given
+   * with `mobile`, and only then, hence `onSettings!` below.
+   */
   onSettings?: () => void;
   mobile?: boolean;
 };

@@ -25,7 +25,7 @@ export default function GameOver({ score, best, newBest, onPlayAgain, fullScreen
           </div>
         )}
       </div>
-      <div className="flex flex-col gap-2.5 border-y-[3px] border-dashed border-dark py-3.5">
+      <div className="flex flex-col gap-2.5 border-y-3 border-dashed border-dark py-3.5">
         <div className="flex items-baseline justify-between gap-3">
           <span className="text-[13px]">SCORE</span>
           <span className="font-numbers text-[44px] leading-none">{score}</span>

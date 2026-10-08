@@ -7,7 +7,7 @@ const VARIANTS = {
   primary: "h-11 bg-ink px-4.5 text-[14px] text-backlight shadow-button hover:bg-dark active:translate-x-1 active:translate-y-1",
   /** NEW GAME on mobile: smaller, with a thinner shadow. */
   "primary-small": "h-11 bg-ink px-3.5 text-[12px] text-backlight shadow-button-sm hover:bg-dark active:translate-x-0.75 active:translate-y-0.75",
-  /** TAP in the settings menu: NEW GAME on mobile, the same size as the switches under it. */
+  /** Tap in the settings menu: styled like NEW GAME on mobile, and the same size as the switches under it. */
   setting: "h-8 w-14 bg-ink text-[12px] text-backlight shadow-button-sm hover:bg-dark active:translate-x-0.75 active:translate-y-0.75",
   /** PLAY AGAIN. */
   "primary-large": "h-13 w-full bg-ink text-[18px] text-backlight shadow-button hover:bg-dark active:translate-x-1 active:translate-y-1",

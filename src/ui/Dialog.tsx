@@ -17,7 +17,7 @@ export default function Dialog({ label, fullScreen, children }: Props) {
       <div
         role="dialog"
         aria-label={label}
-        className="flex w-[min(320px,100%)] flex-col gap-4.5 border-[6px] border-ink bg-backlight px-6.5 pt-6.5 pb-6 shadow-panel"
+        className="flex w-[min(320px,100%)] flex-col gap-4.5 border-6 border-ink bg-backlight px-6.5 pt-6.5 pb-6 shadow-panel"
       >
         {children}
       </div>

@@ -6,10 +6,10 @@ import DesktopMain from "./DesktopMain";
 import GameOver from "./GameOver";
 import Header from "./Header";
 import MobileMain from "./MobileMain";
-import { readCookie, writeCookie } from "./cookie";
 import PortraitOnly from "./PortraitOnly";
 import SettingsMenu from "./SettingsMenu";
 import useBest from "./useBest";
+import useSwap from "./useSwap";
 import useTheme from "./useTheme";
 import "./tactris.css";
 
@@ -23,7 +23,6 @@ const MOBILE =
   (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
 
 const startGame = () => newGame(SETTINGS, deal(SETTINGS), deal(SETTINGS));
-const SWAP_COOKIE = "tactris-swap";
 
 export default function Tactris() {
   const [game, setGame] = useState(startGame);
@@ -31,12 +30,7 @@ export default function Tactris() {
   const rootRef = useRef<HTMLDivElement>(null);
   const theme = useTheme(rootRef);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  // Swap controls, from the mobile settings: the rotate buttons trade places.
-  const [swapped, setSwapped] = useState(() => readCookie(SWAP_COOKIE) === "on");
-  const swap = () => {
-    setSwapped(!swapped);
-    writeCookie(SWAP_COOKIE, swapped ? "off" : "on");
-  };
+  const swap = useSwap();
 
   // The Cell under the pointer, or null when the pointer is off the Board.
   const [pointer, setPointer] = useState<[number, number] | null>(null);
@@ -142,13 +136,13 @@ export default function Tactris() {
           status={status}
           onRotate={rotate}
           touching={touching}
-          swapped={swapped}
+          swapped={swap.swapped}
         />
       ) : (
         <DesktopMain game={game} best={best.score} board={board} status={status} />
       )}
       {settingsOpen && (
-        <SettingsMenu theme={theme} swapped={swapped} onSwap={swap} onClose={() => setSettingsOpen(false)} />
+        <SettingsMenu theme={theme} swapped={swap.swapped} onSwap={swap.toggle}onClose={() => setSettingsOpen(false)} />
       )}
       {MOBILE && <PortraitOnly />}
     </div>
