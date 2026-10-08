@@ -7,7 +7,9 @@ import GameOver from "./GameOver";
 import Header from "./Header";
 import MobileMain from "./MobileMain";
 import PortraitOnly from "./PortraitOnly";
+import SettingsMenu from "./SettingsMenu";
 import useBest from "./useBest";
+import useSwap from "./useSwap";
 import useTheme from "./useTheme";
 import "./tactris.css";
 
@@ -27,6 +29,8 @@ export default function Tactris() {
   const best = useBest(game.score);
   const rootRef = useRef<HTMLDivElement>(null);
   const theme = useTheme(rootRef);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const swap = useSwap();
 
   // The Cell under the pointer, or null when the pointer is off the Board.
   const [pointer, setPointer] = useState<[number, number] | null>(null);
@@ -123,11 +127,22 @@ export default function Tactris() {
           : "tactris flex min-h-screen flex-col font-pixel text-ink"
       }
     >
-      <Header theme={theme} onNewGame={restart} mobile={MOBILE} />
+      <Header theme={theme} onNewGame={restart} onSettings={() => setSettingsOpen(true)} mobile={MOBILE} />
       {MOBILE ? (
-        <MobileMain game={game} best={best.score} board={board} status={status} onRotate={rotate} touching={touching} />
+        <MobileMain
+          game={game}
+          best={best.score}
+          board={board}
+          status={status}
+          onRotate={rotate}
+          touching={touching}
+          swapped={swap.swapped}
+        />
       ) : (
         <DesktopMain game={game} best={best.score} board={board} status={status} />
+      )}
+      {settingsOpen && (
+        <SettingsMenu theme={theme} swapped={swap.swapped} onSwap={swap.toggle}onClose={() => setSettingsOpen(false)} />
       )}
       {MOBILE && <PortraitOnly />}
     </div>

@@ -210,8 +210,8 @@
     }
   }
 
-  /* Game over: the Board dimmed by backlight scanlines. */
-  .game-over-dim {
+  /* Behind a Dialog: the Board, or on mobile the whole screen, dimmed by backlight scanlines. */
+  .dialog-dim {
     background: repeating-linear-gradient(
       0deg,
       color-mix(in srgb, var(--backlight) 78%, transparent) 0 2px,
