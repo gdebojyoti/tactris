@@ -22,7 +22,7 @@ export default function Button({ variant = "primary", ...props }: ComponentProps
   return (
     <button
       type="button"
-      className={`${VARIANTS[variant]} cursor-pointer font-pixel [-webkit-tap-highlight-color:transparent] active:shadow-none focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-ink`}
+      className={`${VARIANTS[variant]} cursor-pointer [-webkit-tap-highlight-color:transparent] active:shadow-none focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-ink`}
       {...props}
     />
   );

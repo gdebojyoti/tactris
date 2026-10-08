@@ -3,6 +3,7 @@ import type { Direction, Game } from "../engine/engine";
 import Box from "./Box";
 import MiniPiece from "./MiniPiece";
 import RotateButton from "./RotateButton";
+import Stat from "./Stat";
 
 type Props = {
   game: Game;
@@ -21,27 +22,23 @@ type Props = {
  */
 export default function MobileMain({ game, best, board, status, onRotate, touching }: Props) {
   // The Board is as wide as the column, unless that's too tall for the screen: then it narrows, centred,
-  // until everything fits. 388px is the height of everything but the Board and the bottom padding (--bottom-gap:
+  // until everything fits. 383px is the height of everything but the Board and the bottom padding (--bottom-gap:
   // 20px up to 390px wide, 40px on wider screens). On very short phones it stops at 240px, to stay playable,
   // and the page scrolls. Tablets get a narrower column.
   const boardWidth =
-    "min(100%, max(240px, 100dvh - 388px - var(--bottom-gap) - env(safe-area-inset-top) - env(safe-area-inset-bottom)))";
+    "min(100%, max(240px, 100dvh - 383px - var(--bottom-gap) - env(safe-area-inset-top) - env(safe-area-inset-bottom)))";
   return (
     <main className="mx-auto flex w-full max-w-xl flex-1 flex-col gap-3 px-4 pt-3.5 pb-(--bottom-gap) [--bottom-gap:20px] min-[391px]:[--bottom-gap:40px]">
-      <div className="grid grid-cols-[1.5fr_1fr_1fr] gap-2.5">
-        <Box label="SCORE" variant="stat">
-          <span className="text-right text-[30px] leading-none font-bold">{game.score}</span>
-        </Box>
-        <Box label="LINES" variant="stat">
-          <span className="text-right text-[22px] leading-none font-bold">{game.lines}</span>
-        </Box>
-        <Box label="BEST" variant="stat">
-          <span className="text-right text-[22px] leading-none font-bold">{best}</span>
-        </Box>
+      <div className="flex items-start justify-between">
+        <Stat label="SCORE" value={game.score} variant="score-small" />
+        <div className="flex gap-6">
+          <Stat label="LINES" value={game.lines} variant="minor-small" />
+          <Stat label="BEST" value={best} variant="minor-small" />
+        </div>
       </div>
       <section aria-label="Board" className="mx-auto flex flex-col gap-3" style={{ width: boardWidth }}>
         {board}
-        <div className="flex min-h-5 items-center font-pixel text-[13px] leading-none">{status}</div>
+        <div className="flex min-h-5 items-center text-[13px] leading-none">{status}</div>
       </section>
       <div className="grid grid-cols-[64px_1fr_1fr_64px] gap-2.5">
         <RotateButton direction="ccw" onRotate={onRotate} />

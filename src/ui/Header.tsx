@@ -8,13 +8,13 @@ import type useTheme from "./useTheme";
 const LAYOUTS = {
   desktop: {
     header: "flex flex-wrap items-center justify-between gap-4 border-b-4 border-ink px-11 py-4.5",
-    title: "font-pixel text-[32px] font-bold tracking-[0.04em] text-shadow-hard",
+    title: "text-[32px] font-bold tracking-[0.04em] text-shadow-hard",
     buttons: "flex items-center gap-4",
     newGame: "primary",
   },
   mobile: {
     header: "flex items-center justify-between gap-3 border-b-3 border-ink px-4 py-3.5",
-    title: "font-pixel text-[22px] font-bold tracking-[0.04em] text-shadow-hard-sm",
+    title: "text-[22px] font-bold tracking-[0.04em] text-shadow-hard-sm",
     buttons: "flex items-center gap-2.5",
     newGame: "primary-small",
   },

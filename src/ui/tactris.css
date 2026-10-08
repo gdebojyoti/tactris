@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Pixelify+Sans:wght@500;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=VT323&display=swap");
 @import "tailwindcss";
 
 /* Design: docs/design/tactris-in-game/README.md, and docs/design/tactris-mobile-m5/README.md for mobile */
@@ -14,7 +14,8 @@
   --color-backlight: var(--backlight);
   --color-error: var(--error);
   --font-pixel: "Silkscreen", ui-monospace, monospace;
-  --font-pixel-body: "Pixelify Sans", ui-monospace, monospace;
+  /* VT323 only for numbers: score, lines and best. Everything else is Silkscreen, the game's default font. */
+  --font-numbers: "VT323", ui-monospace, monospace;
 
   /* Hard shadows, never blurred, and the double inset rings on boxes and the Game over panel. */
   --shadow-button: 4px 4px 0 var(--dark);

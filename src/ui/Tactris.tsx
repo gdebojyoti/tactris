@@ -119,8 +119,8 @@ export default function Tactris() {
       data-layout={MOBILE ? "mobile" : "desktop"}
       className={
         MOBILE
-          ? "tactris flex min-h-dvh touch-manipulation flex-col pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] font-pixel-body text-ink select-none"
-          : "tactris flex min-h-screen flex-col font-pixel-body text-ink"
+          ? "tactris flex min-h-dvh touch-manipulation flex-col pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] font-pixel text-ink select-none"
+          : "tactris flex min-h-screen flex-col font-pixel text-ink"
       }
     >
       <Header theme={theme} onNewGame={restart} mobile={MOBILE} />
