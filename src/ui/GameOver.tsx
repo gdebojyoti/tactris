@@ -1,12 +1,19 @@
 import Button from "./Button";
 import Sparkle from "./Sparkle";
 
-type Props = { score: number; best: number; newBest: boolean; onPlayAgain: () => void };
+type Props = {
+  score: number;
+  best: number;
+  newBest: boolean;
+  onPlayAgain: () => void;
+  /** Mobile: the Board is too small to hold the panel, so the whole screen is dimmed instead. */
+  fullScreen?: boolean;
+};
 
 /** Over the dimmed Board: the final score and best, NEW BEST! when it was beaten, and PLAY AGAIN. */
-export default function GameOver({ score, best, newBest, onPlayAgain }: Props) {
+export default function GameOver({ score, best, newBest, onPlayAgain, fullScreen }: Props) {
   return (
-    <div className="game-over-dim absolute inset-1.5 flex items-center justify-center p-6">
+    <div className={`game-over-dim flex items-center justify-center ${fullScreen ? "fixed inset-0 z-10 p-4" : "absolute inset-1.5 p-6"}`}>
       <div
         role="dialog"
         aria-label="Game over"
@@ -32,7 +39,7 @@ export default function GameOver({ score, best, newBest, onPlayAgain }: Props) {
             <span className="text-[26px] leading-none font-bold">{best}</span>
           </div>
         </div>
-        <Button large onClick={onPlayAgain} autoFocus>
+        <Button variant="primary-large" onClick={onPlayAgain} autoFocus>
           PLAY AGAIN
         </Button>
       </div>

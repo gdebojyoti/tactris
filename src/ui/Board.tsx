@@ -1,5 +1,5 @@
-import { useEffect, useRef } from "react";
-import type { ghost as ghostOf, Game } from "../engine/engine";
+import { useEffect, useRef, type HTMLAttributes, type PointerEvent } from "react";
+import type { Direction, ghost as ghostOf, Game } from "../engine/engine";
 
 // About half a mouse-wheel click (100px in most browsers), so every click turns once.
 const WHEEL_STEP = 50;
@@ -9,17 +9,26 @@ type Props = {
   game: Game;
   /** The Ghost to draw, or null when there's none (pointer off the Board or not moved since placing, rows clearing, Game over). */
   ghost: ReturnType<typeof ghostOf> | null;
-  /** The Cell under the mouse, each time it changes: null when the mouse leaves the Cells for the padding or frame. */
+  /**
+   * The Cell under the mouse, each time it changes: null when the mouse leaves the Cells for the padding or frame.
+   * For a touch, the Cell a row above the finger, and null when the finger is lifted or off the Board.
+   */
   onPointer: (cell: [number, number] | null) => void;
   /** Where the mouse is, in client coordinates, every time it moves over the Board. */
   onMove: (at: { x: number; y: number }) => void;
-  onPlace: (row: number, col: number, at: { x: number; y: number }) => void;
+  /** Where the mouse was clicked; a touch has no position. */
+  onPlace: (row: number, col: number, at?: { x: number; y: number }) => void;
   /** Must keep the same identity across renders, or the wheel listener resets its distance and cooldown. */
-  onRotate: (direction: "cw" | "ccw") => void;
+  onRotate: (direction: Direction) => void;
+  /**
+   * Given on touch devices: the Board then takes touch input instead of the mouse, in the thinner mobile frame,
+   * and reports true when a finger goes down on it and false when it lifts, wherever it is then.
+   */
+  onTouch?: (down: boolean) => void;
 };
 
 /** The rectangular playing area made of Cells, with the Ghost, row preview and flash drawn over them. */
-export default function Board({ game, ghost, onPointer, onMove, onPlace, onRotate }: Props) {
+export default function Board({ game, ghost, onPointer, onMove, onPlace, onRotate, onTouch }: Props) {
   // The wheel over the Board turns the Piece instead of scrolling the page: down is clockwise. Attached
   // directly so it can call preventDefault, which React's passive wheel handler can't. A trackpad sends
   // many small deltas, so they add up to about one wheel click, with at most one turn per cooldown.
@@ -76,25 +85,65 @@ export default function Board({ game, ghost, onPointer, onMove, onPlace, onRotat
     return classes.join(" ");
   };
 
-  // The frame and padding are on the outer box, the Cells and their gaps on the inner one: only the
-  // inner one shows a Ghost and takes clicks.
+  // Touch: the Ghost follows the finger one row above it, so the finger doesn't hide it, and lifting the
+  // finger places the Piece there, a plain tap too. The finger may go one row below the frame, so the
+  // Ghost can reach the bottom row; anywhere else off the Board hides the Ghost, and lifting there
+  // places nothing. A touch keeps sending its events here after it leaves the Board (implicit capture).
+  const fingerCell = (event: PointerEvent): [number, number] | null => {
+    const frame = boardRef.current!.getBoundingClientRect();
+    const row = cellsRef.current!.getBoundingClientRect().height / height;
+    const { clientX: x, clientY: y } = event;
+    if (x < frame.left || x > frame.right || y < frame.top || y > frame.bottom + row) return null;
+    return cellAt(x, y - row);
+  };
+  const drag = (event: PointerEvent) => {
+    if (event.isPrimary && event.buttons) point(fingerCell(event));
+  };
+  // The finger is off the glass: lifted or cancelled.
+  const release = () => {
+    point(null);
+    onTouch?.(false);
+  };
+
+  // The frame and padding are on the outer box, the Cells and their gaps on the inner one: the mouse only
+  // counts over the inner one, a touch anywhere on the frame. A touch doesn't scroll the page.
+  const touch = onTouch !== undefined;
+  const frameInput: HTMLAttributes<HTMLDivElement> = touch
+    ? {
+        onPointerDown: (event) => {
+          if (event.isPrimary) onTouch(true);
+          drag(event);
+        },
+        onPointerMove: drag,
+        onPointerUp: (event) => {
+          if (!event.isPrimary) return;
+          const cell = fingerCell(event);
+          release();
+          if (cell) onPlace(...cell);
+        },
+        onPointerCancel: release,
+      }
+    : { onMouseMove: (event) => onMove({ x: event.clientX, y: event.clientY }) };
+  const cellsInput: HTMLAttributes<HTMLDivElement> = touch
+    ? {}
+    : {
+        onMouseMove: (event) => point(cellAt(event.clientX, event.clientY)),
+        onMouseLeave: () => point(null),
+        onClick: (event) => onPlace(...cellAt(event.clientX, event.clientY), { x: event.clientX, y: event.clientY }),
+      };
+
   return (
     <div
       ref={boardRef}
-      className="border-[6px] border-ink bg-light p-2.5 shadow-board"
-      onMouseMove={(event) => onMove({ x: event.clientX, y: event.clientY })}
+      className={
+        touch
+          ? "touch-none border-5 border-ink bg-light p-1.75 shadow-board-sm [-webkit-tap-highlight-color:transparent]"
+          : "border-6 border-ink bg-light p-2.5 shadow-board"
+      }
+      {...frameInput}
     >
-      <div
-        ref={cellsRef}
-        className="grid gap-0.5"
-        style={{ gridTemplateColumns: `repeat(${width}, minmax(0, 1fr))` }}
-        onMouseMove={(event) => point(cellAt(event.clientX, event.clientY))}
-        onMouseLeave={() => point(null)}
-        onClick={(event) => onPlace(...cellAt(event.clientX, event.clientY), { x: event.clientX, y: event.clientY })}
-      >
-        {game.cells.flatMap((row, r) =>
-          row.map((_, c) => <div key={`${r},${c}`} className={cellClass(r, c)} />),
-        )}
+      <div ref={cellsRef} className="grid gap-0.5" style={{ gridTemplateColumns: `repeat(${width}, minmax(0, 1fr))` }} {...cellsInput}>
+        {game.cells.flatMap((row, r) => row.map((_, c) => <div key={`${r},${c}`} className={cellClass(r, c)} />))}
       </div>
     </div>
   );

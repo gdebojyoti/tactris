@@ -1,17 +1,28 @@
 import type { ComponentProps } from "react";
 
+// Each variant is a full set of classes, not an override: two conflicting utilities resolve by Tailwind's
+// stylesheet order, not by their order in className.
+const VARIANTS = {
+  /** NEW GAME on desktop. */
+  primary: "h-11 bg-ink px-4.5 text-[14px] text-backlight shadow-button hover:bg-dark active:translate-x-1 active:translate-y-1",
+  /** NEW GAME on mobile: smaller, with a thinner shadow. */
+  "primary-small": "h-11 bg-ink px-3.5 text-[12px] text-backlight shadow-button-sm hover:bg-dark active:translate-x-0.75 active:translate-y-0.75",
+  /** PLAY AGAIN. */
+  "primary-large": "h-13 w-full bg-ink text-[18px] text-backlight shadow-button hover:bg-dark active:translate-x-1 active:translate-y-1",
+  /** The square mobile rotate buttons: light, with an ink shadow. */
+  rotate: "grid size-16 place-items-center self-center bg-light text-ink shadow-rotate active:translate-x-1 active:translate-y-1",
+};
+
 /**
- * The primary button: solid ink with a hard shadow, which in this design always means "clickable".
- * Pressed, it moves down-right into its shadow and the shadow goes, keeping its colour. Hover only applies
- * on devices that can hover (Tailwind's default), so after a tap a touch screen goes straight back to normal.
- * Each size is a full set of classes, not an override: two conflicting utilities resolve by Tailwind's
- * stylesheet order, not by their order in className.
+ * A button with a hard shadow, which in this design always means "clickable". Pressed, it moves down-right
+ * into its shadow and the shadow goes. Hover only applies on devices that can hover (Tailwind's default),
+ * so after a tap a touch screen goes straight back to normal.
  */
-export default function Button({ large, ...props }: ComponentProps<"button"> & { large?: boolean }) {
-  const size = large ? "h-13 w-full text-[18px]" : "h-11 px-4.5 text-[14px]";
+export default function Button({ variant = "primary", ...props }: ComponentProps<"button"> & { variant?: keyof typeof VARIANTS }) {
   return (
     <button
-      className={`${size} cursor-pointer bg-ink font-pixel text-backlight shadow-button [-webkit-tap-highlight-color:transparent] hover:bg-dark active:translate-x-1 active:translate-y-1 active:shadow-none focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-ink`}
+      type="button"
+      className={`${VARIANTS[variant]} cursor-pointer font-pixel [-webkit-tap-highlight-color:transparent] active:shadow-none focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-ink`}
       {...props}
     />
   );
