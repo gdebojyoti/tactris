@@ -3,13 +3,13 @@ import type { ReactNode } from "react";
 // Each variant is a full set of classes, not an override: two conflicting utilities resolve by Tailwind's
 // stylesheet order, not by their order in className.
 const VARIANTS = {
-  full: "gap-2 border-4 px-4.5 py-3.5 shadow-box",
+  full: { box: "gap-2 border-4 px-4.5 py-3.5 shadow-box", label: "text-[13px]" },
   /** Half width, side by side with another Box. */
-  half: "flex-1 gap-2 border-4 px-3 py-3.5 shadow-box",
+  half: { box: "flex-1 gap-2 border-4 px-3 py-3.5 shadow-box", label: "text-[13px]" },
   /** Mobile, thinner: SCORE, LINES and BEST in one row. */
-  stat: "min-w-0 gap-1.5 border-3 px-3 py-2.5 shadow-box-sm",
+  stat: { box: "min-w-0 gap-1.5 border-3 px-3 py-2.5 shadow-box-sm", label: "text-[11px]" },
   /** Mobile, thinner and centred: NOW and NEXT between the rotate buttons. */
-  piece: "min-w-0 items-center gap-1.5 border-3 px-2.5 py-2 shadow-box-sm",
+  piece: { box: "min-w-0 items-center gap-1.5 border-3 px-2.5 py-2 shadow-box-sm", label: "text-[11px]" },
 };
 
 type Props = {
@@ -24,10 +24,10 @@ type Props = {
 
 /** A sidebar box: ink border, double inset ring, label on top. */
 export default function Box({ label, variant = "full", blocked, dim, children }: Props) {
-  const mobile = variant === "stat" || variant === "piece";
+  const { box, label: labelSize } = VARIANTS[variant];
   return (
-    <div className={`flex flex-col bg-backlight ${VARIANTS[variant]} ${blocked ? "border-error" : "border-ink"} ${dim ? "opacity-50" : ""}`}>
-      <span className={`font-pixel ${mobile ? "text-[11px]" : "text-[13px]"}`}>{label}</span>
+    <div className={`flex flex-col bg-backlight ${box} ${blocked ? "border-error" : "border-ink"} ${dim ? "opacity-50" : ""}`}>
+      <span className={`font-pixel ${labelSize}`}>{label}</span>
       {children}
     </div>
   );

@@ -1,14 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { deal } from "../engine/dealer";
-import { apply, ghost, newGame, type Settings } from "../engine/engine";
+import { apply, ghost, newGame, type Direction, type Settings } from "../engine/engine";
 import Board from "./Board";
-import Button from "./Button";
+import DesktopMain from "./DesktopMain";
 import GameOver from "./GameOver";
+import Header from "./Header";
 import MobileMain from "./MobileMain";
 import PortraitOnly from "./PortraitOnly";
-import Sidebar from "./Sidebar";
-import PixelIcon from "./PixelIcon";
-import RoundButton from "./RoundButton";
 import useBest from "./useBest";
 import useTheme from "./useTheme";
 import "./tactris.css";
@@ -56,7 +54,7 @@ export default function Tactris() {
     best.newGame();
   };
 
-  const rotate = useCallback((direction: "cw" | "ccw") => {
+  const rotate = useCallback((direction: Direction) => {
     setGame((g) => apply(g, { type: "rotate", direction }));
     setPlacedAt(null);
   }, []);
@@ -85,17 +83,27 @@ export default function Tactris() {
 
   const shown = pointer && !placedAt && !game.clearing.length && !game.gameOver ? ghost(game, ...pointer) : null;
   const lines = shown?.completes.length ?? 0;
-  const status = game.gameOver
+  const message = game.gameOver
     ? "NO MOVES LEFT"
     : shown?.blocked
       ? "BLOCKED"
       : lines
         ? `${lines} ${lines === 1 ? "LINE" : "LINES"} CLEAR`
         : "";
+  // The status line, shown like a terminal prompt.
+  const status = message && `> ${message}`;
 
   const board = (
     <div className="relative">
-      <Board game={game} ghost={shown} onPointer={setPointer} onMove={onMove} onPlace={place} onRotate={rotate} touch={MOBILE} onTouch={setTouching} />
+      <Board
+        game={game}
+        ghost={shown}
+        onPointer={setPointer}
+        onMove={onMove}
+        onPlace={place}
+        onRotate={rotate}
+        onTouch={MOBILE ? setTouching : undefined}
+      />
       {game.gameOver && (
         <GameOver score={game.score} best={best.score} newBest={best.newBest} onPlayAgain={restart} fullScreen={MOBILE} />
       )}
@@ -115,55 +123,11 @@ export default function Tactris() {
           : "tactris flex min-h-screen flex-col font-pixel-body text-ink"
       }
     >
-      <header
-        className={
-          MOBILE
-            ? "flex items-center justify-between gap-3 border-b-3 border-ink px-4 py-3.5"
-            : "flex flex-wrap items-center justify-between gap-4 border-b-4 border-ink px-11 py-4.5"
-        }
-      >
-        <span
-          className={
-            MOBILE
-              ? "font-pixel text-[22px] font-bold tracking-[0.04em] text-shadow-hard-sm"
-              : "font-pixel text-[32px] font-bold tracking-[0.04em] text-shadow-hard"
-          }
-        >
-          TACTRIS
-        </span>
-        <div className={`flex items-center ${MOBILE ? "gap-2.5" : "gap-4"}`}>
-          <RoundButton label={`Change theme, now ${theme.name}`} onClick={theme.next}>
-            <PixelIcon name="palette" />
-          </RoundButton>
-          {/* The icon shows the mode a click switches to, like the label. */}
-          <RoundButton label={`Switch to ${theme.mode === "dark" ? "light" : "dark"} mode`} onClick={theme.toggleMode}>
-            <PixelIcon name={theme.mode === "dark" ? "sun" : "moon"} />
-          </RoundButton>
-          <Button small={MOBILE} onClick={restart}>
-            NEW GAME
-          </Button>
-        </div>
-      </header>
-
+      <Header theme={theme} onNewGame={restart} mobile={MOBILE} />
       {MOBILE ? (
-        <MobileMain
-          game={game}
-          best={best.score}
-          board={board}
-          status={status}
-          onRotate={rotate}
-          touching={touching}
-        />
+        <MobileMain game={game} best={best.score} board={board} status={status} onRotate={rotate} touching={touching} />
       ) : (
-        <main className="flex flex-1 flex-wrap items-center justify-center gap-11 px-6 py-7">
-          {/* The status line hangs below the Board, out of the flow, so the Sidebar centres on the Board alone. */}
-          <section aria-label="Board" className="relative w-[min(560px,100%,calc(100vh-200px))]">
-            {board}
-            <div className="absolute top-full left-0 mt-3 flex h-5.5 items-center font-pixel text-[15px] leading-none">{status && `> ${status}`}</div>
-          </section>
-
-          <Sidebar game={game} best={best.score} />
-        </main>
+        <DesktopMain game={game} best={best.score} board={board} status={status} />
       )}
       {MOBILE && <PortraitOnly />}
     </div>

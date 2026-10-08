@@ -39,7 +39,7 @@ export default function GameOver({ score, best, newBest, onPlayAgain, fullScreen
             <span className="text-[26px] leading-none font-bold">{best}</span>
           </div>
         </div>
-        <Button large onClick={onPlayAgain} autoFocus>
+        <Button variant="primary-large" onClick={onPlayAgain} autoFocus>
           PLAY AGAIN
         </Button>
       </div>

@@ -51,11 +51,14 @@ export type Game = {
 /** Points for clearing 0, 1, 2, 3 or 4 rows with one placement. */
 const CLEAR_POINTS = [0, 100, 300, 500, 800];
 
+/** Which way a rotation turns the Piece: clockwise or counter-clockwise. */
+export type Direction = "cw" | "ccw";
+
 export type Action =
   | { type: "place"; row: number; col: number }
   | { type: "receive"; piece: Piece }
   | { type: "clear" }
-  | { type: "rotate"; direction: "cw" | "ccw" };
+  | { type: "rotate"; direction: Direction };
 
 export function newGame(settings: Settings, current: Piece, next: Piece): Game {
   const cells = Array.from({ length: settings.height }, () => Array<boolean>(settings.width).fill(false));

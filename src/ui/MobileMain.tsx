@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { Game } from "../engine/engine";
+import type { Direction, Game } from "../engine/engine";
 import Box from "./Box";
 import MiniPiece from "./MiniPiece";
 import RotateButton from "./RotateButton";
@@ -10,7 +10,7 @@ type Props = {
   /** The Board, with Game over over it; the status line goes under it. */
   board: ReactNode;
   status: string;
-  onRotate: (direction: "cw" | "ccw") => void;
+  onRotate: (direction: Direction) => void;
   /** A finger is down on the Board. */
   touching: boolean;
 };
@@ -21,13 +21,13 @@ type Props = {
  */
 export default function MobileMain({ game, best, board, status, onRotate, touching }: Props) {
   // The Board is as wide as the column, unless that's too tall for the screen: then it narrows, centred,
-  // until everything fits. 388px is the height of everything but the Board and the bottom padding (--pb:
+  // until everything fits. 388px is the height of everything but the Board and the bottom padding (--bottom-gap:
   // 20px up to 390px wide, 40px on wider screens). On very short phones it stops at 240px, to stay playable,
   // and the page scrolls. Tablets get a narrower column.
   const boardWidth =
-    "min(100%, max(240px, 100dvh - 388px - var(--pb) - env(safe-area-inset-top) - env(safe-area-inset-bottom)))";
+    "min(100%, max(240px, 100dvh - 388px - var(--bottom-gap) - env(safe-area-inset-top) - env(safe-area-inset-bottom)))";
   return (
-    <main className="mx-auto flex w-full max-w-xl flex-1 flex-col gap-3 px-4 pt-3.5 pb-(--pb) [--pb:20px] min-[391px]:[--pb:40px]">
+    <main className="mx-auto flex w-full max-w-xl flex-1 flex-col gap-3 px-4 pt-3.5 pb-(--bottom-gap) [--bottom-gap:20px] min-[391px]:[--bottom-gap:40px]">
       <div className="grid grid-cols-[1.5fr_1fr_1fr] gap-2.5">
         <Box label="SCORE" variant="stat">
           <span className="text-right text-[30px] leading-none font-bold">{game.score}</span>
@@ -41,7 +41,7 @@ export default function MobileMain({ game, best, board, status, onRotate, touchi
       </div>
       <section aria-label="Board" className="mx-auto flex flex-col gap-3" style={{ width: boardWidth }}>
         {board}
-        <div className="flex min-h-5 items-center font-pixel text-[13px] leading-none">{status && `> ${status}`}</div>
+        <div className="flex min-h-5 items-center font-pixel text-[13px] leading-none">{status}</div>
       </section>
       <div className="grid grid-cols-[64px_1fr_1fr_64px] gap-2.5">
         <RotateButton direction="ccw" onRotate={onRotate} />
@@ -56,10 +56,10 @@ export default function MobileMain({ game, best, board, status, onRotate, touchi
       {/* The hint shows the step to take next: drag while no finger is down, lift while one is. */}
       <p className="mt-auto text-center text-[15px] leading-[1.4]">
         <span className={`block ${touching ? "opacity-50" : ""}`}>
-          <b>DRAG</b> ON THE BOARD TO <b>AIM</b>
+          <b>DRAG</b> on the board to <b>AIM</b>
         </span>
         <span className={`block ${touching ? "" : "opacity-50"}`}>
-          <b>LIFT</b> YOUR FINGER TO <b>PLACE</b>
+          <b>LIFT</b> your finger to <b>PLACE</b>
         </span>
       </p>
     </main>
