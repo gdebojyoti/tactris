@@ -4,6 +4,8 @@ import { apply, ghost, newGame, type Settings } from "../engine/engine";
 import Board from "./Board";
 import Button from "./Button";
 import GameOver from "./GameOver";
+import MobileMain from "./MobileMain";
+import PortraitOnly from "./PortraitOnly";
 import Sidebar from "./Sidebar";
 import PixelIcon from "./PixelIcon";
 import RoundButton from "./RoundButton";
@@ -13,6 +15,12 @@ import "./tactris.css";
 
 const SETTINGS: Settings = { allowRotation: true, width: 10, height: 10 };
 const FLASH_MS = 200;
+
+// Phones and tablets get the mobile layout and touch input, by user agent. iPadOS Safari says it's a Mac,
+// so a Mac with a touch screen counts as a tablet.
+const MOBILE =
+  /Mobi|Android|iPhone|iPad|iPod/.test(navigator.userAgent) ||
+  (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
 
 const startGame = () => newGame(SETTINGS, deal(SETTINGS), deal(SETTINGS));
 
@@ -64,12 +72,13 @@ export default function Tactris() {
     return () => window.removeEventListener("keydown", onKey);
   }, [rotate]);
 
-  const place = (row: number, col: number, at: { x: number; y: number }) => {
+  // A touch has no position to wait on: the Ghost goes when the finger lifts.
+  const place = (row: number, col: number, at?: { x: number; y: number }) => {
     if (placedAt) return;
     const placed = apply(game, { type: "place", row, col });
     if (placed === game) return;
     setGame(apply(placed, { type: "receive", piece: deal(SETTINGS) }));
-    setPlacedAt(at);
+    if (at) setPlacedAt(at);
   };
 
   const shown = pointer && !placedAt && !game.clearing.length && !game.gameOver ? ghost(game, ...pointer) : null;
@@ -82,11 +91,45 @@ export default function Tactris() {
         ? `${lines} ${lines === 1 ? "LINE" : "LINES"} CLEAR`
         : "";
 
+  const board = (
+    <div className="relative">
+      <Board game={game} ghost={shown} onPointer={setPointer} onMove={onMove} onPlace={place} onRotate={rotate} touch={MOBILE} />
+      {game.gameOver && (
+        <GameOver score={game.score} best={best.score} newBest={best.newBest} onPlayAgain={restart} fullScreen={MOBILE} />
+      )}
+    </div>
+  );
+
+  // Mobile fills the screen inside the notch and home bar, and a long press doesn't select text.
   return (
-    <div ref={rootRef} data-theme={theme.id} data-mode={theme.mode} className="tactris flex min-h-screen flex-col font-pixel-body text-ink">
-      <header className="flex flex-wrap items-center justify-between gap-4 border-b-4 border-ink px-11 py-4.5">
-        <span className="font-pixel text-[32px] font-bold tracking-[0.04em] text-shadow-hard">TACTRIS</span>
-        <div className="flex items-center gap-4">
+    <div
+      ref={rootRef}
+      data-theme={theme.id}
+      data-mode={theme.mode}
+      data-layout={MOBILE ? "mobile" : "desktop"}
+      className={
+        MOBILE
+          ? "tactris flex min-h-dvh touch-manipulation flex-col pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] font-pixel-body text-ink select-none"
+          : "tactris flex min-h-screen flex-col font-pixel-body text-ink"
+      }
+    >
+      <header
+        className={
+          MOBILE
+            ? "flex items-center justify-between gap-3 border-b-3 border-ink px-4 py-3.5"
+            : "flex flex-wrap items-center justify-between gap-4 border-b-4 border-ink px-11 py-4.5"
+        }
+      >
+        <span
+          className={
+            MOBILE
+              ? "font-pixel text-[22px] font-bold tracking-[0.04em] text-shadow-hard-sm"
+              : "font-pixel text-[32px] font-bold tracking-[0.04em] text-shadow-hard"
+          }
+        >
+          TACTRIS
+        </span>
+        <div className={`flex items-center ${MOBILE ? "gap-2.5" : "gap-4"}`}>
           <RoundButton label={`Change theme, now ${theme.name}`} onClick={theme.next}>
             <PixelIcon name="palette" />
           </RoundButton>
@@ -94,24 +137,32 @@ export default function Tactris() {
           <RoundButton label={`Switch to ${theme.mode === "dark" ? "light" : "dark"} mode`} onClick={theme.toggleMode}>
             <PixelIcon name={theme.mode === "dark" ? "sun" : "moon"} />
           </RoundButton>
-          <Button onClick={restart}>NEW GAME</Button>
+          <Button small={MOBILE} onClick={restart}>
+            NEW GAME
+          </Button>
         </div>
       </header>
 
-      <main className="flex flex-1 flex-wrap items-center justify-center gap-11 px-6 py-7">
-        {/* The status line hangs below the Board, out of the flow, so the Sidebar centres on the Board alone. */}
-        <section aria-label="Board" className="relative w-[min(560px,100%,calc(100vh-200px))]">
-          <div className="relative">
-            <Board game={game} ghost={shown} onPointer={setPointer} onMove={onMove} onPlace={place} onRotate={rotate} />
-            {game.gameOver && (
-              <GameOver score={game.score} best={best.score} newBest={best.newBest} onPlayAgain={restart} />
-            )}
-          </div>
-          <div className="absolute top-full left-0 mt-3 flex h-5.5 items-center font-pixel text-[15px] leading-none">{status && `> ${status}`}</div>
-        </section>
+      {MOBILE ? (
+        <MobileMain
+          game={game}
+          best={best.score}
+          board={board}
+          status={status}
+          onRotate={rotate}
+        />
+      ) : (
+        <main className="flex flex-1 flex-wrap items-center justify-center gap-11 px-6 py-7">
+          {/* The status line hangs below the Board, out of the flow, so the Sidebar centres on the Board alone. */}
+          <section aria-label="Board" className="relative w-[min(560px,100%,calc(100vh-200px))]">
+            {board}
+            <div className="absolute top-full left-0 mt-3 flex h-5.5 items-center font-pixel text-[15px] leading-none">{status && `> ${status}`}</div>
+          </section>
 
-        <Sidebar game={game} best={best.score} />
-      </main>
+          <Sidebar game={game} best={best.score} />
+        </main>
+      )}
+      {MOBILE && <PortraitOnly />}
     </div>
   );
 }

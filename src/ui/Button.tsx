@@ -7,11 +7,15 @@ import type { ComponentProps } from "react";
  * Each size is a full set of classes, not an override: two conflicting utilities resolve by Tailwind's
  * stylesheet order, not by their order in className.
  */
-export default function Button({ large, ...props }: ComponentProps<"button"> & { large?: boolean }) {
-  const size = large ? "h-13 w-full text-[18px]" : "h-11 px-4.5 text-[14px]";
+export default function Button({ large, small, ...props }: ComponentProps<"button"> & { large?: boolean; small?: boolean }) {
+  const size = large
+    ? "h-13 w-full text-[18px] shadow-button active:translate-x-1 active:translate-y-1"
+    : small
+      ? "h-11 px-3.5 text-[12px] shadow-button-sm active:translate-x-0.75 active:translate-y-0.75"
+      : "h-11 px-4.5 text-[14px] shadow-button active:translate-x-1 active:translate-y-1";
   return (
     <button
-      className={`${size} cursor-pointer bg-ink font-pixel text-backlight shadow-button [-webkit-tap-highlight-color:transparent] hover:bg-dark active:translate-x-1 active:translate-y-1 active:shadow-none focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-ink`}
+      className={`${size} cursor-pointer bg-ink font-pixel text-backlight [-webkit-tap-highlight-color:transparent] hover:bg-dark active:shadow-none focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-ink`}
       {...props}
     />
   );

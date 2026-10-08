@@ -16,18 +16,18 @@ export default function Sidebar({ game, best }: { game: Game; best: number }) {
         <span className="text-right text-[44px] leading-none font-bold">{game.score}</span>
       </Box>
       <div className="flex gap-4">
-        <Box label="LINES" half>
+        <Box label="LINES" variant="half">
           <span className="text-right text-[28px] leading-none font-bold">{game.lines}</span>
         </Box>
-        <Box label="BEST" half>
+        <Box label="BEST" variant="half">
           <span className="text-right text-[28px] leading-none font-bold">{best}</span>
         </Box>
       </div>
       <div className="flex gap-4">
-        <Box label="NOW" half blocked={game.gameOver}>
+        <Box label="NOW" variant="half" blocked={game.gameOver}>
           <MiniPiece piece={game.current} blocked={game.gameOver} />
         </Box>
-        <Box label="NEXT" half>
+        <Box label="NEXT" variant="half">
           <MiniPiece piece={game.next} />
         </Box>
       </div>

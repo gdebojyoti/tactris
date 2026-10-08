@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type PointerEvent } from "react";
 import type { ghost as ghostOf, Game } from "../engine/engine";
 
 // About half a mouse-wheel click (100px in most browsers), so every click turns once.
@@ -9,17 +9,23 @@ type Props = {
   game: Game;
   /** The Ghost to draw, or null when there's none (pointer off the Board or not moved since placing, rows clearing, Game over). */
   ghost: ReturnType<typeof ghostOf> | null;
-  /** The Cell under the mouse, each time it changes: null when the mouse leaves the Cells for the padding or frame. */
+  /**
+   * The Cell under the mouse, each time it changes: null when the mouse leaves the Cells for the padding or frame.
+   * For a touch, the Cell a row above the finger, and null when the finger is lifted or off the Board.
+   */
   onPointer: (cell: [number, number] | null) => void;
   /** Where the mouse is, in client coordinates, every time it moves over the Board. */
   onMove: (at: { x: number; y: number }) => void;
-  onPlace: (row: number, col: number, at: { x: number; y: number }) => void;
+  /** Where the mouse was clicked; a touch has no position. */
+  onPlace: (row: number, col: number, at?: { x: number; y: number }) => void;
   /** Must keep the same identity across renders, or the wheel listener resets its distance and cooldown. */
   onRotate: (direction: "cw" | "ccw") => void;
+  /** Touch input and the thinner mobile frame, instead of the mouse. */
+  touch?: boolean;
 };
 
 /** The rectangular playing area made of Cells, with the Ghost, row preview and flash drawn over them. */
-export default function Board({ game, ghost, onPointer, onMove, onPlace, onRotate }: Props) {
+export default function Board({ game, ghost, onPointer, onMove, onPlace, onRotate, touch }: Props) {
   // The wheel over the Board turns the Piece instead of scrolling the page: down is clockwise. Attached
   // directly so it can call preventDefault, which React's passive wheel handler can't. A trackpad sends
   // many small deltas, so they add up to about one wheel click, with at most one turn per cooldown.
@@ -75,10 +81,45 @@ export default function Board({ game, ghost, onPointer, onMove, onPlace, onRotat
     if (game.clearing.includes(r)) classes.push("cell-flash");
     return classes.join(" ");
   };
+  const cells = game.cells.flatMap((row, r) => row.map((_, c) => <div key={`${r},${c}`} className={cellClass(r, c)} />));
+
+  // Touch: the Ghost follows the finger one row above it, so the finger doesn't hide it, and lifting the
+  // finger places the Piece there, a plain tap too. The finger may go one row below the frame, so the
+  // Ghost can reach the bottom row; anywhere else off the Board hides the Ghost, and lifting there
+  // places nothing. A touch keeps sending its events here after it leaves the Board (implicit capture).
+  const fingerCell = (event: PointerEvent): [number, number] | null => {
+    const frame = boardRef.current!.getBoundingClientRect();
+    const row = cellsRef.current!.getBoundingClientRect().height / height;
+    const { clientX: x, clientY: y } = event;
+    if (x < frame.left || x > frame.right || y < frame.top || y > frame.bottom + row) return null;
+    return cellAt(x, y - row);
+  };
+  const drag = (event: PointerEvent) => {
+    if (event.isPrimary && event.buttons) point(fingerCell(event));
+  };
+  const lift = (event: PointerEvent) => {
+    if (!event.isPrimary) return;
+    const cell = fingerCell(event);
+    point(null);
+    if (cell) onPlace(...cell);
+  };
 
   // The frame and padding are on the outer box, the Cells and their gaps on the inner one: only the
-  // inner one shows a Ghost and takes clicks.
-  return (
+  // inner one shows a Ghost and takes clicks. A touch counts on the frame too, and doesn't scroll the page.
+  return touch ? (
+    <div
+      ref={boardRef}
+      className="touch-none border-[5px] border-ink bg-light p-1.75 shadow-board-sm [-webkit-tap-highlight-color:transparent]"
+      onPointerDown={drag}
+      onPointerMove={drag}
+      onPointerUp={lift}
+      onPointerCancel={() => point(null)}
+    >
+      <div ref={cellsRef} className="grid gap-0.5" style={{ gridTemplateColumns: `repeat(${width}, minmax(0, 1fr))` }}>
+        {cells}
+      </div>
+    </div>
+  ) : (
     <div
       ref={boardRef}
       className="border-[6px] border-ink bg-light p-2.5 shadow-board"
@@ -92,9 +133,7 @@ export default function Board({ game, ghost, onPointer, onMove, onPlace, onRotat
         onMouseLeave={() => point(null)}
         onClick={(event) => onPlace(...cellAt(event.clientX, event.clientY), { x: event.clientX, y: event.clientY })}
       >
-        {game.cells.flatMap((row, r) =>
-          row.map((_, c) => <div key={`${r},${c}`} className={cellClass(r, c)} />),
-        )}
+        {cells}
       </div>
     </div>
   );
