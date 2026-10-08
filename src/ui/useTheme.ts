@@ -1,4 +1,5 @@
 import { useEffect, useState, type RefObject } from "react";
+import { readCookie, writeCookie } from "./cookie";
 
 // The colour themes, in the order the theme button cycles through them. Each has a light and a dark mode;
 // the colours are in tactris.css.
@@ -12,25 +13,7 @@ const THEMES = [
 type Theme = (typeof THEMES)[number];
 type Mode = "light" | "dark";
 
-// The theme and mode are each kept in a cookie for a year. Cookies can be blocked too (sandboxed frames),
-// and a missing or unknown value is ignored.
-const readCookie = (name: string) => {
-  try {
-    return document.cookie
-      .split("; ")
-      .find((cookie) => cookie.startsWith(`${name}=`))
-      ?.slice(name.length + 1);
-  } catch {
-    return undefined;
-  }
-};
-const writeCookie = (name: string, value: string) => {
-  try {
-    document.cookie = `${name}=${value}; path=/; max-age=31536000; SameSite=Lax`;
-  } catch {
-    // Not saved; the choice still applies for this visit.
-  }
-};
+// The theme and mode are each kept in a cookie; a missing or unknown value is ignored.
 const THEME_COOKIE = "tactris-theme";
 const MODE_COOKIE = "tactris-mode";
 const loadTheme = (): Theme => THEMES.find((theme) => theme.id === readCookie(THEME_COOKIE)) ?? THEMES[0];

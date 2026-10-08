@@ -20,22 +20,36 @@ const LAYOUTS = {
   },
 } as const;
 
-type Props = { theme: ReturnType<typeof useTheme>; onNewGame: () => void; mobile?: boolean };
+type Props = {
+  theme: ReturnType<typeof useTheme>;
+  onNewGame: () => void;
+  /** Mobile: the settings button opens the settings menu, in place of the theme and mode buttons. */
+  onSettings?: () => void;
+  mobile?: boolean;
+};
 
-/** The wordmark, then the theme and mode buttons and NEW GAME; smaller on mobile. */
-export default function Header({ theme, onNewGame, mobile }: Props) {
+/** The wordmark, then the theme and mode buttons (settings on mobile) and NEW GAME; smaller on mobile. */
+export default function Header({ theme, onNewGame, onSettings, mobile }: Props) {
   const layout = LAYOUTS[mobile ? "mobile" : "desktop"];
   return (
     <header className={layout.header}>
       <span className={layout.title}>TACTRIS</span>
       <div className={layout.buttons}>
-        <RoundButton label={`Change theme, now ${theme.name}`} onClick={theme.next}>
-          <PixelIcon name="palette" />
-        </RoundButton>
-        {/* The icon shows the mode a click switches to, like the label. */}
-        <RoundButton label={`Switch to ${theme.mode === "dark" ? "light" : "dark"} mode`} onClick={theme.toggleMode}>
-          <PixelIcon name={theme.mode === "dark" ? "sun" : "moon"} />
-        </RoundButton>
+        {mobile ? (
+          <RoundButton label="Settings" onClick={onSettings!}>
+            <PixelIcon name="gear" />
+          </RoundButton>
+        ) : (
+          <>
+            <RoundButton label={`Change theme, now ${theme.name}`} onClick={theme.next}>
+              <PixelIcon name="palette" />
+            </RoundButton>
+            {/* The icon shows the mode a click switches to, like the label. */}
+            <RoundButton label={`Switch to ${theme.mode === "dark" ? "light" : "dark"} mode`} onClick={theme.toggleMode}>
+              <PixelIcon name={theme.mode === "dark" ? "sun" : "moon"} />
+            </RoundButton>
+          </>
+        )}
         <Button variant={layout.newGame} onClick={onNewGame}>
           NEW GAME
         </Button>

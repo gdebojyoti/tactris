@@ -14,13 +14,15 @@ type Props = {
   onRotate: (direction: Direction) => void;
   /** A finger is down on the Board. */
   touching: boolean;
+  /** Swap controls is on: clockwise on the left, counter-clockwise on the right. */
+  swapped: boolean;
 };
 
 /**
  * The mobile layout under the header (design M5): score, lines and best in a row, the Board, the status line,
  * NOW and NEXT between the rotate buttons, and the hint pinned to the bottom.
  */
-export default function MobileMain({ game, best, board, status, onRotate, touching }: Props) {
+export default function MobileMain({ game, best, board, status, onRotate, touching, swapped }: Props) {
   // The Board is as wide as the column, unless that's too tall for the screen: then it narrows, centred,
   // until everything fits. 383px is the height of everything but the Board and the bottom padding (--bottom-gap:
   // 20px up to 390px wide, 40px on wider screens). On very short phones it stops at 240px, to stay playable,
@@ -41,14 +43,14 @@ export default function MobileMain({ game, best, board, status, onRotate, touchi
         <div className="flex min-h-5 items-center text-[13px] leading-none">{status}</div>
       </section>
       <div className="grid grid-cols-[64px_1fr_1fr_64px] gap-2.5">
-        <RotateButton direction="ccw" onRotate={onRotate} />
+        <RotateButton direction={swapped ? "cw" : "ccw"} onRotate={onRotate} />
         <Box label="NOW" variant="piece" blocked={game.gameOver}>
           <MiniPiece piece={game.current} blocked={game.gameOver} small />
         </Box>
         <Box label="NEXT" variant="piece" dim>
           <MiniPiece piece={game.next} small />
         </Box>
-        <RotateButton direction="cw" onRotate={onRotate} />
+        <RotateButton direction={swapped ? "ccw" : "cw"} onRotate={onRotate} />
       </div>
       {/* The hint shows the step to take next: drag while no finger is down, lift while one is. */}
       <p className="mt-auto text-center text-[15px] leading-[1.4]">
