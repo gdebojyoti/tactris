@@ -17,14 +17,16 @@ type Props = {
   variant?: keyof typeof VARIANTS;
   /** Red border: the NOW box at Game over, when its Piece is blocked everywhere. */
   blocked?: boolean;
+  /** Half opacity: the NEXT box, so it doesn't compete with NOW. */
+  dim?: boolean;
   children: ReactNode;
 };
 
 /** A sidebar box: ink border, double inset ring, label on top. */
-export default function Box({ label, variant = "full", blocked, children }: Props) {
+export default function Box({ label, variant = "full", blocked, dim, children }: Props) {
   const mobile = variant === "stat" || variant === "piece";
   return (
-    <div className={`flex flex-col bg-backlight ${VARIANTS[variant]} ${blocked ? "border-error" : "border-ink"}`}>
+    <div className={`flex flex-col bg-backlight ${VARIANTS[variant]} ${blocked ? "border-error" : "border-ink"} ${dim ? "opacity-50" : ""}`}>
       <span className={`font-pixel ${mobile ? "text-[11px]" : "text-[13px]"}`}>{label}</span>
       {children}
     </div>

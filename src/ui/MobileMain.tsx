@@ -46,7 +46,7 @@ export default function MobileMain({ game, best, board, status, onRotate }: Prop
         <Box label="NOW" variant="piece" blocked={game.gameOver}>
           <MiniPiece piece={game.current} blocked={game.gameOver} small />
         </Box>
-        <Box label="NEXT" variant="piece">
+        <Box label="NEXT" variant="piece" dim>
           <MiniPiece piece={game.next} small />
         </Box>
         <RotateButton direction="cw" onRotate={onRotate} />

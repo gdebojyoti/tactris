@@ -27,7 +27,7 @@ export default function Sidebar({ game, best }: { game: Game; best: number }) {
         <Box label="NOW" variant="half" blocked={game.gameOver}>
           <MiniPiece piece={game.current} blocked={game.gameOver} />
         </Box>
-        <Box label="NEXT" variant="half">
+        <Box label="NEXT" variant="half" dim>
           <MiniPiece piece={game.next} />
         </Box>
       </div>
