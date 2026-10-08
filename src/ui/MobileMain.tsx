@@ -11,13 +11,15 @@ type Props = {
   board: ReactNode;
   status: string;
   onRotate: (direction: "cw" | "ccw") => void;
+  /** A finger is down on the Board. */
+  touching: boolean;
 };
 
 /**
  * The mobile layout under the header (design M5): score, lines and best in a row, the Board, the status line,
  * NOW and NEXT between the rotate buttons, and the hint pinned to the bottom.
  */
-export default function MobileMain({ game, best, board, status, onRotate }: Props) {
+export default function MobileMain({ game, best, board, status, onRotate, touching }: Props) {
   // The Board is as wide as the column, unless that's too tall for the screen: then it narrows, centred,
   // until everything fits. 388px is the height of everything but the Board and the bottom padding (--pb:
   // 20px up to 390px wide, 40px on wider screens). On very short phones it stops at 240px, to stay playable,
@@ -51,10 +53,14 @@ export default function MobileMain({ game, best, board, status, onRotate }: Prop
         </Box>
         <RotateButton direction="cw" onRotate={onRotate} />
       </div>
+      {/* The hint shows the step to take next: drag while no finger is down, lift while one is. */}
       <p className="mt-auto text-center text-[15px] leading-[1.4]">
-        <b>DRAG</b> ON THE BOARD TO <b>AIM</b>
-        <br />
-        <b>LIFT</b> YOUR FINGER TO <b>PLACE</b>
+        <span className={`block ${touching ? "opacity-50" : ""}`}>
+          <b>DRAG</b> ON THE BOARD TO <b>AIM</b>
+        </span>
+        <span className={`block ${touching ? "" : "opacity-50"}`}>
+          <b>LIFT</b> YOUR FINGER TO <b>PLACE</b>
+        </span>
       </p>
     </main>
   );

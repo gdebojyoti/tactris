@@ -32,6 +32,8 @@ export default function Tactris() {
 
   // The Cell under the pointer, or null when the pointer is off the Board.
   const [pointer, setPointer] = useState<[number, number] | null>(null);
+  // Touch: a finger is down on the Board, even if it has since moved off it.
+  const [touching, setTouching] = useState(false);
   // Where the mouse was when the last Piece was placed. Until it moves from there, or the player turns
   // the Piece, the Ghost is hidden and clicks don't place: otherwise the new Piece shows blocked on top
   // of the one just placed. Compared by position, since browsers also fire mousemove when the page
@@ -93,7 +95,7 @@ export default function Tactris() {
 
   const board = (
     <div className="relative">
-      <Board game={game} ghost={shown} onPointer={setPointer} onMove={onMove} onPlace={place} onRotate={rotate} touch={MOBILE} />
+      <Board game={game} ghost={shown} onPointer={setPointer} onMove={onMove} onPlace={place} onRotate={rotate} touch={MOBILE} onTouch={setTouching} />
       {game.gameOver && (
         <GameOver score={game.score} best={best.score} newBest={best.newBest} onPlayAgain={restart} fullScreen={MOBILE} />
       )}
@@ -150,6 +152,7 @@ export default function Tactris() {
           board={board}
           status={status}
           onRotate={rotate}
+          touching={touching}
         />
       ) : (
         <main className="flex flex-1 flex-wrap items-center justify-center gap-11 px-6 py-7">

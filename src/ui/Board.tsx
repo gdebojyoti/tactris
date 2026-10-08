@@ -22,10 +22,12 @@ type Props = {
   onRotate: (direction: "cw" | "ccw") => void;
   /** Touch input and the thinner mobile frame, instead of the mouse. */
   touch?: boolean;
+  /** Touch only: true when a finger goes down on the Board, false when it lifts, wherever it is then. */
+  onTouch?: (down: boolean) => void;
 };
 
 /** The rectangular playing area made of Cells, with the Ghost, row preview and flash drawn over them. */
-export default function Board({ game, ghost, onPointer, onMove, onPlace, onRotate, touch }: Props) {
+export default function Board({ game, ghost, onPointer, onMove, onPlace, onRotate, touch, onTouch }: Props) {
   // The wheel over the Board turns the Piece instead of scrolling the page: down is clockwise. Attached
   // directly so it can call preventDefault, which React's passive wheel handler can't. A trackpad sends
   // many small deltas, so they add up to about one wheel click, with at most one turn per cooldown.
@@ -101,6 +103,7 @@ export default function Board({ game, ghost, onPointer, onMove, onPlace, onRotat
     if (!event.isPrimary) return;
     const cell = fingerCell(event);
     point(null);
+    onTouch?.(false);
     if (cell) onPlace(...cell);
   };
 
@@ -110,10 +113,16 @@ export default function Board({ game, ghost, onPointer, onMove, onPlace, onRotat
     <div
       ref={boardRef}
       className="touch-none border-[5px] border-ink bg-light p-1.75 shadow-board-sm [-webkit-tap-highlight-color:transparent]"
-      onPointerDown={drag}
+      onPointerDown={(event) => {
+        if (event.isPrimary) onTouch?.(true);
+        drag(event);
+      }}
       onPointerMove={drag}
       onPointerUp={lift}
-      onPointerCancel={() => point(null)}
+      onPointerCancel={() => {
+        point(null);
+        onTouch?.(false);
+      }}
     >
       <div ref={cellsRef} className="grid gap-0.5" style={{ gridTemplateColumns: `repeat(${width}, minmax(0, 1fr))` }}>
         {cells}
