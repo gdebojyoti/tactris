@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tactris mobile — M5</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&amp;family=VT323&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#9bbc0f}
+.cell{aspect-ratio:1;box-sizing:border-box;position:relative}
+.empty{background:#9bbc0f;box-shadow:inset 0 0 0 1px rgba(15,56,15,.12)}
+.filled{border:2px solid #0f380f;background:#306230;box-shadow:inset 2px 2px 0 #8bac0f}
+.ghost{background:#9bbc0f;border:2px dashed #0f380f;box-shadow:inset 0 0 0 2px #9bbc0f,inset 0 0 0 5px #306230}
+.ghost-bad{background:repeating-linear-gradient(45deg,#c4302b 0 2px,transparent 2px 4px),repeating-linear-gradient(-45deg,#c4302b 0 2px,transparent 2px 4px),#9bbc0f;border:2px solid #c4302b;box-shadow:none}
+.cell.ghost-hit{background:repeating-linear-gradient(45deg,#9bbc0f 0 2px,transparent 2px 5px),#c4302b;border:2px solid #c4302b;box-shadow:none}
+.cell.preview{background:#8bac0f;border:2px solid #0f380f;box-shadow:inset 0 0 0 3px #0f380f}
+.cell.preview.ghost{border-style:dashed;box-shadow:inset 0 0 0 3px #0f380f,inset 0 0 0 6px #8bac0f,inset 0 0 0 8px #306230}
+.finger{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:rgba(15,56,15,.28);box-shadow:0 0 0 2px rgba(15,56,15,.55);z-index:2;pointer-events:none}
+.mcell{width:15px;height:15px;box-sizing:border-box}
+.mempty{background:transparent}
+.mfill{border:2px solid #0f380f;background:#306230;box-shadow:inset 2px 2px 0 #8bac0f}
+.box{border:3px solid #0f380f;box-shadow:inset 0 0 0 2px #9bbc0f,inset 0 0 0 4px #306230;padding:10px 12px;display:flex;flex-direction:column;gap:6px;background:#9bbc0f;min-width:0}
+.pbox{border:3px solid #0f380f;box-shadow:inset 0 0 0 2px #9bbc0f,inset 0 0 0 4px #306230;padding:8px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;background:#9bbc0f;min-width:0}
+.lbl{font-family:'Silkscreen',monospace;font-size:11px}
+.hbtn{font-family:'Silkscreen',monospace;font-size:12px;color:#9bbc0f;background:#0f380f;border:0;height:44px;padding:0 14px;cursor:pointer;box-shadow:3px 3px 0 #306230;display:inline-flex;align-items:center;justify-content:center}
+.hbtn.alt{color:#0f380f;background:#8bac0f;box-shadow:3px 3px 0 #0f380f;width:44px;padding:0}
+.rot{color:#0f380f;background:#8bac0f;border:0;cursor:pointer;box-shadow:4px 4px 0 #0f380f;display:flex;align-items:center;justify-content:center}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column; color: #0f380f; font-family: 'VT323', monospace; background: repeating-linear-gradient(0deg, rgba(15,56,15,0.05) 0 1px, transparent 1px 4px), repeating-linear-gradient(90deg, rgba(15,56,15,0.05) 0 1px, transparent 1px 4px), #9bbc0f">
+  <header style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 3px solid #0f380f">
+    <span style="font-family: 'Silkscreen', monospace; font-weight: 700; font-size: 22px; letter-spacing: 0.04em; text-shadow: 2px 2px 0 #8bac0f">TACTRIS</span>
+    <nav style="display: flex; gap: 10px">
+      <button class="hbtn">NEW GAME</button>
+      <button class="hbtn alt" aria-label="Options"><svg width="18" height="18" viewBox="0 0 18 18" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="3" width="14" height="3" fill="currentColor"></rect><rect x="2" y="8" width="14" height="3" fill="currentColor"></rect><rect x="2" y="13" width="14" height="3" fill="currentColor"></rect></svg></button>
+    </nav>
+  </header>
+
+  <main style="flex: 1; display: flex; flex-direction: column; gap: 12px; padding: 14px 16px 20px">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start">
+      <div style="display: flex; flex-direction: column; gap: 2px">
+        <span class="lbl">SCORE</span>
+        <span style="font-family: 'VT323', monospace; font-size: 68px; font-weight: 400; line-height: 0.8">1240</span>
+      </div>
+      <div style="display: flex; gap: 24px">
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <span class="lbl">LINES</span>
+          <span style="font-family: 'VT323', monospace; font-size: 28px; font-weight: 400; line-height: 1">12</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <span class="lbl">BEST</span>
+          <span style="font-family: 'VT323', monospace; font-size: 28px; font-weight: 400; line-height: 1">3880</span>
+        </div>
+      </div>
+    </div>
+
+    <section aria-label="Board" style="display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 2px; padding: 7px; background: #8bac0f; border: 5px solid #0f380f; box-shadow: 6px 6px 0 #306230">
+      <sc-for list="{{cells}}" as="cell" hint-placeholder-count="100">
+        <div class="{{cell.cls}}">
+          <sc-if value="{{cell.finger}}" hint-placeholder-val="{{ false }}"><span class="finger" aria-hidden="true"></span></sc-if>
+        </div>
+      </sc-for>
+    </section>
+    <div style="min-height: 20px; font-family: 'Silkscreen', monospace; font-size: 13px">{{statusText}}</div>
+
+    <div style="display: grid; grid-template-columns: 64px 1fr 1fr 64px; gap: 10px; align-items: stretch">
+      <button class="rot" aria-label="Rotate counter-clockwise"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7"></path><path d="M4 3v6h6"></path></svg></button>
+      <div class="pbox"><span class="lbl">NOW</span><div style="height: 32px; display: flex; align-items: center"><div style="display: grid; grid-template-columns: repeat(3, 15px); gap: 2px"><sc-for list="{{cur}}" as="m" hint-placeholder-count="6"><div class="{{m.cls}}"></div></sc-for></div></div></div>
+      <div class="pbox"><span class="lbl">NEXT</span><div style="height: 32px; display: flex; align-items: center"><div style="display: grid; grid-template-columns: repeat(3, 15px); gap: 2px"><sc-for list="{{next}}" as="m" hint-placeholder-count="6"><div class="{{m.cls}}"></div></sc-for></div></div></div>
+      <button class="rot" aria-label="Rotate clockwise"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.4-5.7"></path><path d="M20 3v6h-6"></path></svg></button>
+    </div>
+
+    <p style="margin: auto 0 0; text-align: center; font-family: 'Silkscreen', monospace; font-size: 15px; line-height: 1.4"><strong>DRAG</strong> ON THE BOARD TO <strong>AIM</strong><br><strong>LIFT</strong> YOUR FINGER TO <strong>PLACE</strong></p>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"ghost":{"editor":"enum","options":["valid","blocked"],"default":"valid"},"showFinger":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var blocked = (this.props.ghost ?? 'valid') === 'blocked';
+    var showFinger = this.props.showFinger ?? false;
+    var board = ["..........", "..........", "......OO..", ".SS...OO..", "SS........", "...J......", "...JJJ....", ".T........", "TTZZLII.LL", "ZZ.LLSSOO."];
+    var ghost = blocked ? ['3,5', '3,6', '3,7', '4,6'] : ['7,6', '7,7', '7,8', '8,7'];
+    var finger = showFinger ? (blocked ? '5,6' : '9,7') : '';
+    var cells = [];
+    var lines = 0;
+    for (var r = 0; r < 10; r++) {
+      var full = true;
+      for (var c = 0; c < 10; c++) { if (board[r][c] === '.' && ghost.indexOf(r + ',' + c) < 0) full = false; }
+      var preview = full && !blocked;
+      if (preview) lines++;
+      for (var c2 = 0; c2 < 10; c2++) {
+        var key = r + ',' + c2;
+        var ch = board[r][c2];
+        var g = ghost.indexOf(key) >= 0;
+        var cls = 'cell ' + (ch === '.' ? 'empty' : 'filled');
+        if (g) cls += blocked ? (ch === '.' ? ' ghost-bad' : ' ghost-hit') : ' ghost';
+        if (preview) cls += ' preview';
+        cells.push({ cls: cls, finger: key === finger });
+      }
+    }
+    var mini = function (rows) {
+      var out = [];
+      rows.forEach(function (row) { row.split('').forEach(function (ch) { out.push({ cls: 'mcell ' + (ch === '.' ? 'mempty' : 'mfill') }); }); });
+      return out;
+    };
+    var status = blocked ? 'BLOCKED' : (lines > 0 ? lines + (lines === 1 ? ' LINE CLEAR' : ' LINES CLEAR') : '');
+    return { cells: cells, cur: mini(['TTT', '.T.']), next: mini(['.SS', 'SS.']), statusText: status ? '> ' + status : '' };
+  }
+}
+</script>
+</body>
+</html>
