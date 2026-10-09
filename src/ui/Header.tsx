@@ -1,4 +1,5 @@
 import Button from "./Button";
+import Logo from "./Logo";
 import PixelIcon from "./PixelIcon";
 import RoundButton from "./RoundButton";
 import type useTheme from "./useTheme";
@@ -8,13 +9,11 @@ import type useTheme from "./useTheme";
 const LAYOUTS = {
   desktop: {
     header: "flex flex-wrap items-center justify-between gap-4 border-b-4 border-ink px-11 py-4.5",
-    title: "text-[32px] font-bold tracking-[0.04em] text-shadow-hard",
     buttons: "flex items-center gap-4",
     newGame: "primary",
   },
   mobile: {
     header: "flex items-center justify-between gap-3 border-b-3 border-ink px-4 py-3.5",
-    title: "text-[22px] font-bold tracking-[0.04em] text-shadow-hard-sm",
     buttons: "flex items-center gap-2.5",
     newGame: "primary-small",
   },
@@ -31,12 +30,19 @@ type Props = {
   mobile?: boolean;
 };
 
-/** The wordmark, then the theme and mode buttons (settings on mobile) and NEW GAME; smaller on mobile. */
+/** The logo and wordmark (the logo alone on mobile), then the theme and mode buttons (settings on mobile) and NEW GAME; smaller on mobile. */
 export default function Header({ theme, onNewGame, onSettings, mobile }: Props) {
   const layout = LAYOUTS[mobile ? "mobile" : "desktop"];
   return (
     <header className={layout.header}>
-      <span className={layout.title}>TACTRIS</span>
+      {mobile ? (
+        <Logo label="Tactris" />
+      ) : (
+        <div className="flex items-center gap-3.5">
+          <Logo />
+          <span className="text-[32px] font-bold tracking-[0.04em] text-shadow-hard">TACTRIS</span>
+        </div>
+      )}
       <div className={layout.buttons}>
         {mobile ? (
           <RoundButton label="Settings" onClick={onSettings!}>

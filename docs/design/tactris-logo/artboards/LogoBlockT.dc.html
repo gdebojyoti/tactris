@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tactris logo — Block T</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#9bbc0f}
+.c{box-sizing:border-box;aspect-ratio:1}
+.f{background:#306230;border:calc(var(--s)*.14) solid #0f380f;box-shadow:inset calc(var(--s)*.12) calc(var(--s)*.12) 0 #8bac0f}
+.g{border:calc(var(--s)*.12) dashed #0f380f;box-shadow:inset 0 0 0 calc(var(--s)*.12) #9bbc0f,inset 0 0 0 calc(var(--s)*.26) #306230}
+.inv .f{background:#8bac0f;border-color:#9bbc0f;box-shadow:inset calc(var(--s)*.12) calc(var(--s)*.12) 0 #9bbc0f}
+.inv .g{border-color:#9bbc0f;box-shadow:inset 0 0 0 calc(var(--s)*.12) #0f380f,inset 0 0 0 calc(var(--s)*.26) #8bac0f}
+.wm{font-family:'Silkscreen',monospace;font-weight:700;letter-spacing:.04em;line-height:.8}
+.cap{font-family:'Silkscreen',monospace;font-size:11px}
+</style>
+</helmet>
+<div style="width: 640px; height: 600px; box-sizing: border-box; display: flex; flex-direction: column; gap: 18px; padding: 24px; color: #0f380f; background: repeating-linear-gradient(0deg, rgba(15,56,15,0.05) 0 1px, transparent 1px 4px), repeating-linear-gradient(90deg, rgba(15,56,15,0.05) 0 1px, transparent 1px 4px), #9bbc0f">
+  <div style="height: 230px; display: flex; align-items: flex-end; justify-content: center; gap: 8px; padding-bottom: 40px; box-sizing: border-box">
+    <div style="display: grid; grid-template-columns: repeat({{cols}}, 46px); gap: 3px; --s: 46px">
+      <sc-for list="{{icon}}" as="c" hint-placeholder-count="9"><div class="{{c.cls}}"></div></sc-for>
+    </div>
+    <span class="wm" style="font-size: 62px; text-shadow: 4px 4px 0 #8bac0f">ACTRIS</span>
+  </div>
+
+  <div class="inv" style="height: 110px; background: #0f380f; display: flex; align-items: flex-end; justify-content: center; gap: 4px; padding-bottom: 20px; box-sizing: border-box">
+    <div style="display: grid; grid-template-columns: repeat({{cols}}, 22px); gap: 2px; --s: 22px">
+      <sc-for list="{{icon}}" as="c" hint-placeholder-count="9"><div class="{{c.cls}}"></div></sc-for>
+    </div>
+    <span class="wm" style="font-size: 30px; color: #9bbc0f; text-shadow: 3px 3px 0 #306230">ACTRIS</span>
+  </div>
+
+  <div style="display: flex; align-items: flex-end; gap: 28px">
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <div class="inv" style="width: 128px; height: 128px; background: #0f380f; display: flex; align-items: center; justify-content: center">
+        <div style="display: grid; grid-template-columns: repeat({{cols}}, 28px); gap: 3px; --s: 28px"><sc-for list="{{icon}}" as="c" hint-placeholder-count="9"><div class="{{c.cls}}"></div></sc-for></div>
+      </div>
+      <span class="cap">APP ICON 128</span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <div style="width: 128px; height: 128px; box-sizing: border-box; border: 4px solid #0f380f; background: #9bbc0f; display: flex; align-items: center; justify-content: center">
+        <div style="display: grid; grid-template-columns: repeat({{cols}}, 27px); gap: 3px; --s: 27px"><sc-for list="{{icon}}" as="c" hint-placeholder-count="9"><div class="{{c.cls}}"></div></sc-for></div>
+      </div>
+      <span class="cap">LIGHT 128</span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <div class="inv" style="width: 64px; height: 64px; background: #0f380f; display: flex; align-items: center; justify-content: center">
+        <div style="display: grid; grid-template-columns: repeat({{cols}}, 14px); gap: 2px; --s: 14px"><sc-for list="{{icon}}" as="c" hint-placeholder-count="9"><div class="{{c.cls}}"></div></sc-for></div>
+      </div>
+      <span class="cap">64</span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <div class="inv" style="width: 32px; height: 32px; background: #0f380f; display: flex; align-items: center; justify-content: center">
+        <div style="display: grid; grid-template-columns: repeat({{cols}}, 7px); gap: 1px; --s: 7px"><sc-for list="{{icon}}" as="c" hint-placeholder-count="9"><div class="{{c.cls}}"></div></sc-for></div>
+      </div>
+      <span class="cap">32</span>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":640,"height":600}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var map = { '.': 'c', 'f': 'c f', 'g': 'c g' };
+    var rows = ['fff', '.f.', '.g.'];
+    var icon = [];
+    rows.forEach(function (r) { r.split('').forEach(function (ch) { icon.push({ cls: map[ch] }); }); });
+    return { icon: icon, cols: rows[0].length };
+  }
+}
+</script>
+</body>
+</html>
