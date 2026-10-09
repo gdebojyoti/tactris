@@ -5,22 +5,18 @@ import Board from "./Board";
 import DesktopMain from "./DesktopMain";
 import GameOver from "./GameOver";
 import Header from "./Header";
+import { MOBILE } from "./mobile";
 import MobileMain from "./MobileMain";
 import PortraitOnly from "./PortraitOnly";
 import SettingsMenu from "./SettingsMenu";
 import useBest from "./useBest";
+import useGameAnalytics, { type RotateInput } from "./useGameAnalytics";
 import useSwap from "./useSwap";
 import useTheme from "./useTheme";
 import "./tactris.css";
 
 const SETTINGS: Settings = { allowRotation: true, width: 10, height: 10 };
 const FLASH_MS = 200;
-
-// Phones and tablets get the mobile layout and touch input, by user agent. iPadOS Safari says it's a Mac,
-// so a Mac with a touch screen counts as a tablet.
-const MOBILE =
-  /Mobi|Android|iPhone|iPad|iPod/.test(navigator.userAgent) ||
-  (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
 
 const startGame = () => newGame(SETTINGS, deal(SETTINGS), deal(SETTINGS));
 
@@ -31,6 +27,7 @@ export default function Tactris() {
   const theme = useTheme(rootRef);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const swap = useSwap();
+  const analytics = useGameAnalytics(game);
 
   // The Cell under the pointer, or null when the pointer is off the Board.
   const [pointer, setPointer] = useState<[number, number] | null>(null);
@@ -53,15 +50,22 @@ export default function Tactris() {
     return () => clearTimeout(timer);
   }, [game]);
 
-  const restart = () => {
+  const restart = (via: "new_game" | "play_again") => {
+    analytics.newGame(via);
     setGame(startGame());
     best.newGame();
   };
 
-  const rotate = useCallback((direction: Direction) => {
-    setGame((g) => apply(g, { type: "rotate", direction }));
-    setPlacedAt(null);
-  }, []);
+  const { rotated } = analytics;
+  const rotate = useCallback(
+    (direction: Direction, input: RotateInput) => {
+      rotated(input);
+      setGame((g) => apply(g, { type: "rotate", direction }));
+      setPlacedAt(null);
+    },
+    [rotated],
+  );
+  const rotateByWheel = useCallback((direction: Direction) => rotate(direction, "wheel"), [rotate]);
 
   // E turns clockwise and Q counter-clockwise, anywhere on the page.
   useEffect(() => {
@@ -70,7 +74,7 @@ export default function Tactris() {
       // Leave browser and system shortcuts (Ctrl+E, Cmd+Q, ...) alone.
       if (event.ctrlKey || event.metaKey || event.altKey) return;
       const key = event.key.toLowerCase();
-      if (key === "e" || key === "q") rotate(key === "e" ? "cw" : "ccw");
+      if (key === "e" || key === "q") rotate(key === "e" ? "cw" : "ccw", "keys");
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -80,7 +84,11 @@ export default function Tactris() {
   const place = (row: number, col: number, at?: { x: number; y: number }) => {
     if (placedAt) return;
     const placed = apply(game, { type: "place", row, col });
-    if (placed === game) return;
+    if (placed === game) {
+      if (ghost(game, row, col).blocked) analytics.blocked();
+      return;
+    }
+    analytics.placed();
     setGame(apply(placed, { type: "receive", piece: deal(SETTINGS) }));
     if (at) setPlacedAt(at);
   };
@@ -105,11 +113,11 @@ export default function Tactris() {
         onPointer={setPointer}
         onMove={onMove}
         onPlace={place}
-        onRotate={rotate}
+        onRotate={rotateByWheel}
         onTouch={MOBILE ? setTouching : undefined}
       />
       {game.gameOver && (
-        <GameOver score={game.score} best={best.score} newBest={best.newBest} onPlayAgain={restart} fullScreen={MOBILE} />
+        <GameOver score={game.score} best={best.score} newBest={best.newBest} onPlayAgain={() => restart("play_again")} fullScreen={MOBILE} />
       )}
     </div>
   );
@@ -127,14 +135,14 @@ export default function Tactris() {
           : "tactris flex min-h-screen flex-col font-pixel text-ink"
       }
     >
-      <Header theme={theme} onNewGame={restart} onSettings={() => setSettingsOpen(true)} mobile={MOBILE} />
+      <Header theme={theme} onNewGame={() => restart("new_game")} onSettings={() => setSettingsOpen(true)} mobile={MOBILE} />
       {MOBILE ? (
         <MobileMain
           game={game}
           best={best.score}
           board={board}
           status={status}
-          onRotate={rotate}
+          onRotate={(direction) => rotate(direction, "buttons")}
           touching={touching}
           swapped={swap.swapped}
         />
@@ -142,7 +150,7 @@ export default function Tactris() {
         <DesktopMain game={game} best={best.score} board={board} status={status} />
       )}
       {settingsOpen && (
-        <SettingsMenu theme={theme} swapped={swap.swapped} onSwap={swap.toggle}onClose={() => setSettingsOpen(false)} />
+        <SettingsMenu theme={theme} swapped={swap.swapped} onSwap={swap.toggle} onClose={() => setSettingsOpen(false)} />
       )}
       {MOBILE && <PortraitOnly />}
     </div>

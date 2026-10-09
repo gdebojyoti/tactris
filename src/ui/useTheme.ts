@@ -1,4 +1,5 @@
 import { useEffect, useState, type RefObject } from "react";
+import { track } from "./analytics";
 import { readCookie, writeCookie } from "./cookie";
 
 // The colour themes, in the order the theme button cycles through them. Each has a light and a dark mode;
@@ -38,11 +39,13 @@ export default function useTheme(root: RefObject<HTMLElement | null>) {
     const following = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length];
     setTheme(following);
     writeCookie(THEME_COOKIE, following.id);
+    track("theme_change", { theme: following.id });
   };
   const toggleMode = () => {
     const other = mode === "dark" ? "light" : "dark";
     setMode(other);
     writeCookie(MODE_COOKIE, other);
+    track("mode_change", { mode: other });
   };
   return { id: theme.id, name: theme.name, next, mode, toggleMode };
 }
