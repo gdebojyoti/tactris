@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 38 38" width="38" height="38" shape-rendering="crispEdges" role="img" aria-label="Tactris">
+  <defs>
+    <g id="tm-block">
+      <rect width="12" height="12" fill="#0f380f"/>
+      <rect x="2" y="2" width="8" height="8" fill="#306230"/>
+      <rect x="2" y="2" width="8" height="1" fill="#8bac0f"/>
+      <rect x="2" y="2" width="1" height="8" fill="#8bac0f"/>
+    </g>
+    <g id="tm-ghost">
+      <rect x="0.5" y="0.5" width="11" height="11" fill="none" stroke="#0f380f" stroke-width="1" stroke-dasharray="2 1"/>
+      <rect x="3" y="3" width="6" height="6" fill="none" stroke="#306230" stroke-width="2"/>
+    </g>
+  </defs>
+  <use href="#tm-block" x="0" y="0"/>
+  <use href="#tm-block" x="13" y="0"/>
+  <use href="#tm-block" x="26" y="0"/>
+  <use href="#tm-block" x="13" y="13"/>
+  <use href="#tm-ghost" x="13" y="26"/>
+</svg>

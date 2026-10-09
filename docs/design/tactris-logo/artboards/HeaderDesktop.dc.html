@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tactris — desktop header with logo</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#9bbc0f}
+.c{box-sizing:border-box;aspect-ratio:1}
+.f{background:#306230;border:calc(var(--s)*.14) solid #0f380f;box-shadow:inset calc(var(--s)*.12) calc(var(--s)*.12) 0 #8bac0f}
+.g{border:calc(var(--s)*.12) dashed #0f380f;box-shadow:inset 0 0 0 calc(var(--s)*.12) #9bbc0f,inset 0 0 0 calc(var(--s)*.26) #306230}
+.lbtn{font-family:'Silkscreen',monospace;font-size:14px;color:#9bbc0f;background:#0f380f;border:0;height:44px;padding:0 18px;cursor:pointer;box-shadow:4px 4px 0 #306230}
+.lbtn:hover{background:#306230}
+.lbtn.alt{color:#0f380f;background:#8bac0f;box-shadow:4px 4px 0 #0f380f}
+.lbtn.alt:hover{background:#9bbc0f}
+</style>
+</helmet>
+<div style="min-height: 100vh; box-sizing: border-box; display: flex; flex-direction: column; color: #0f380f; background: repeating-linear-gradient(0deg, rgba(15,56,15,0.05) 0 1px, transparent 1px 4px), repeating-linear-gradient(90deg, rgba(15,56,15,0.05) 0 1px, transparent 1px 4px), #9bbc0f">
+  <header style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; padding: 18px 44px; border-bottom: 4px solid #0f380f">
+    <div style="display: flex; align-items: center; gap: 14px">
+      <div role="img" aria-label="Tactris logo" style="display: grid; grid-template-columns: repeat(3, 12px); gap: 1px; --s: 12px">
+        <sc-for list="{{icon}}" as="c" hint-placeholder-count="9"><div class="{{c.cls}}"></div></sc-for>
+      </div>
+      <span style="font-family: 'Silkscreen', monospace; font-weight: 700; font-size: 32px; letter-spacing: 0.04em; text-shadow: 3px 3px 0 #8bac0f">TACTRIS</span>
+    </div>
+    <nav style="display: flex; gap: 14px">
+      <button class="lbtn">NEW GAME</button>
+      <button class="lbtn alt">OPTIONS</button>
+    </nav>
+  </header>
+  <main style="flex: 1"></main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var map = { '.': 'c', 'f': 'c f', 'g': 'c g' };
+    var icon = [];
+    ['fff', '.f.', '.g.'].forEach(function (r) { r.split('').forEach(function (ch) { icon.push({ cls: map[ch] }); }); });
+    return { icon: icon };
+  }
+}
+</script>
+</body>
+</html>
