@@ -11,7 +11,8 @@ const fresh = () => ({
   rotations: { wheel: 0, keys: 0, buttons: 0 },
   /** Placements tried on a blocked Ghost. */
   blocked: 0,
-  cleared: false,
+  /** A row has been cleared this game, so first_line_clear has been sent. */
+  rowCleared: false,
   /** game_left has been sent: it goes once per game. */
   left: false,
 });
@@ -66,8 +67,8 @@ export default function useGameAnalytics(game: Game) {
 
   // pieces includes the Piece that cleared.
   useEffect(() => {
-    if (!game.lines || stats.current.cleared) return;
-    stats.current.cleared = true;
+    if (!game.lines || stats.current.rowCleared) return;
+    stats.current.rowCleared = true;
     track("first_line_clear", { pieces: stats.current.pieces });
   }, [game.lines]);
 

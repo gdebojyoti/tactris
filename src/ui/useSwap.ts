@@ -11,9 +11,11 @@ const SWAP_COOKIE = "tactris-swap";
 export default function useSwap() {
   const [swapped, setSwapped] = useState(() => readCookie(SWAP_COOKIE) === "on");
   useEffect(() => writeCookie(SWAP_COOKIE, swapped ? "on" : "off"), [swapped]);
+  // Not an updater function: StrictMode runs those twice, which would track twice.
   const toggle = () => {
-    setSwapped(!swapped);
-    track("swap_change", { swapped: !swapped });
+    const on = !swapped;
+    setSwapped(on);
+    track("swap_change", { swapped: on });
   };
   return { swapped, toggle };
 }

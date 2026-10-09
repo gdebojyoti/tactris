@@ -117,7 +117,7 @@ export default function Tactris() {
         onTouch={MOBILE ? setTouching : undefined}
       />
       {game.gameOver && (
-        <GameOver score={game.score} best={best.score} newBest={best.newBest} onPlayAgain={() => restart("play_again")}fullScreen={MOBILE} />
+        <GameOver score={game.score} best={best.score} newBest={best.newBest} onPlayAgain={() => restart("play_again")} fullScreen={MOBILE} />
       )}
     </div>
   );
@@ -135,7 +135,7 @@ export default function Tactris() {
           : "tactris flex min-h-screen flex-col font-pixel text-ink"
       }
     >
-      <Header theme={theme} onNewGame={() => restart("new_game")}onSettings={() => setSettingsOpen(true)} mobile={MOBILE} />
+      <Header theme={theme} onNewGame={() => restart("new_game")} onSettings={() => setSettingsOpen(true)} mobile={MOBILE} />
       {MOBILE ? (
         <MobileMain
           game={game}
@@ -150,7 +150,7 @@ export default function Tactris() {
         <DesktopMain game={game} best={best.score} board={board} status={status} />
       )}
       {settingsOpen && (
-        <SettingsMenu theme={theme} swapped={swap.swapped} onSwap={swap.toggle}onClose={() => setSettingsOpen(false)} />
+        <SettingsMenu theme={theme} swapped={swap.swapped} onSwap={swap.toggle} onClose={() => setSettingsOpen(false)} />
       )}
       {MOBILE && <PortraitOnly />}
     </div>
