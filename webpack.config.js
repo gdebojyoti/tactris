@@ -18,7 +18,8 @@ const copyAssets = {
 
 export default {
   entry: "./src/index.ts",
-  output: { publicPath: "auto", clean: true },
+  // Hashed names can be cached forever (vercel.json). remoteEntry.js keeps its name: hosts load it by URL.
+  output: { filename: "[name].[contenthash].js", publicPath: "auto", clean: true },
   devServer: {
     // Mirrors the routes in vercel.json.
     setupMiddlewares: (middlewares) => [
