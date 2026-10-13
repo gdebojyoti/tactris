@@ -1,6 +1,19 @@
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import webpack from "webpack";
 import pkg from "./package.json" with { type: "json" };
+import { readdirSync, readFileSync } from "node:fs";
+
+// Copies src/assets to dist/assets unchanged, for files linked by URL rather than imported (the social share image).
+const copyAssets = {
+  apply: (compiler) =>
+    compiler.hooks.thisCompilation.tap("copyAssets", (compilation) =>
+      compilation.hooks.processAssets.tap({ name: "copyAssets", stage: webpack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONAL }, () => {
+        for (const file of readdirSync("src/assets")) {
+          compilation.emitAsset(`assets/${file}`, new webpack.sources.RawSource(readFileSync(`src/assets/${file}`)));
+        }
+      }),
+    ),
+};
 
 export default {
   entry: "./src/index.ts",
@@ -50,5 +63,6 @@ export default {
       },
     }),
     new HtmlWebpackPlugin({ template: "./src/index.html", chunks: ["main"] }),
+    copyAssets,
   ],
 };

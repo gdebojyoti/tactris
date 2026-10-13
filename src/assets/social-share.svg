@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" width="1200" height="1200" role="img" aria-label="Tactris">
+  <!-- Social share image. Mark and wordmark keep the desktop header's proportions, scaled 4x. Text is Silkscreen 700, outlined. -->
+  <defs>
+    <g id="og-block">
+      <rect width="12" height="12" fill="#0f380f"/>
+      <rect x="2" y="2" width="8" height="8" fill="#306230"/>
+      <rect x="2" y="2" width="8" height="1" fill="#8bac0f"/>
+      <rect x="2" y="2" width="1" height="8" fill="#8bac0f"/>
+    </g>
+    <g id="og-ghost">
+      <rect x="0.5" y="0.5" width="11" height="11" fill="none" stroke="#0f380f" stroke-width="1" stroke-dasharray="2 1"/>
+      <rect x="3" y="3" width="6" height="6" fill="none" stroke="#306230" stroke-width="2"/>
+    </g>
+    <path id="og-word" d="M64 0L32 0L32-64L16-64L16-80L80-80L80-64L64-64L64 0ZM149.12 0L117.12 0L117.12-64L133.12-64L133.12-80L181.12-80L181.12-64L197.12-64L197.12 0L165.12 0L165.12-32L149.12-32L149.12 0ZM149.12-63.36L149.12-48L165.12-48L165.12-63.36L149.12-63.36ZM298.24 0L250.24 0L250.24-16L234.24-16L234.24-64L250.24-64L250.24-80L298.24-80L298.24-64L314.24-64L314.24-48L282.24-48L282.24-64L266.24-64L266.24-16L282.24-16L282.24-32L314.24-32L314.24-16L298.24-16L298.24 0ZM399.36 0L367.36 0L367.36-64L351.36-64L351.36-80L415.36-80L415.36-64L399.36-64L399.36 0ZM484.48 0L452.48 0L452.48-80L516.48-80L516.48-64L532.48-64L532.48-48L516.48-48L516.48-16L532.48-16L532.48 0L500.48 0L500.48-16L484.48-16L484.48 0ZM484.48-64L484.48-48L500.48-48L500.48-64L484.48-64ZM601.60 0L569.60 0L569.60-80L601.60-80L601.60 0ZM702.72 0L638.72 0L638.72-16L686.72-16L686.72-32L654.72-32L654.72-48L638.72-48L638.72-64L654.72-64L654.72-80L718.72-80L718.72-64L670.72-64L670.72-48L702.72-48L702.72-32L718.72-32L718.72-16L702.72-16L702.72 0Z"/>
+  </defs>
+  <rect width="1200" height="1200" fill="#9bbc0f"/>
+  <g transform="translate(139 524) scale(4)" shape-rendering="crispEdges">
+    <use href="#og-block" x="0" y="0"/>
+    <use href="#og-block" x="13" y="0"/>
+    <use href="#og-block" x="26" y="0"/>
+    <use href="#og-block" x="13" y="13"/>
+    <use href="#og-ghost" x="13" y="26"/>
+  </g>
+  <g transform="translate(331 640)" shape-rendering="crispEdges">
+    <use href="#og-word" x="12" y="12" fill="#8bac0f"/>
+    <use href="#og-word" fill="#0f380f"/>
+  </g>
+</svg>
