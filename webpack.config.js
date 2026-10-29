@@ -19,7 +19,13 @@ const copyAssets = {
 export default {
   entry: "./src/index.ts",
   // Hashed names can be cached forever (vercel.json). remoteEntry.js keeps its name: hosts load it by URL.
-  output: { filename: "[name].[contenthash].js", publicPath: "auto", clean: true },
+  output: {
+    filename: "tactris/[name].[contenthash].js",
+    chunkFilename: "tactris/[id].[contenthash].js",
+    assetModuleFilename: "tactris/[hash][ext][query]",
+    publicPath: "/",
+    clean: true,
+  },
   devServer: {
     // Mirrors the routes in vercel.json.
     setupMiddlewares: (middlewares) => [
@@ -57,7 +63,7 @@ export default {
   plugins: [
     new webpack.container.ModuleFederationPlugin({
       name: "tactris",
-      filename: "remoteEntry.js",
+      filename: "tactris/remoteEntry.js",
       exposes: { "./Tactris": "./src/ui/Tactris.tsx" },
       shared: {
         react: { singleton: true, requiredVersion: pkg.dependencies.react },
